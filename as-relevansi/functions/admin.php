@@ -52,10 +52,11 @@ function wp7rss_handle_admin_actions() {
         $bot['enabled'] = empty($_POST['bot_enabled']) ? 0 : 1;
         $bot['delay_seconds'] = max(0, absint($_POST['bot_delay_seconds'] ?? 8));
         $bot['image_id'] = absint($_POST['bot_image_id'] ?? 0);
-        $bot['image_alt'] = sanitize_text_field(wp_unslash($_POST['bot_image_alt'] ?? ''));
-        $bot['bubble_text'] = sanitize_text_field(wp_unslash($_POST['bot_bubble_text'] ?? ''));
-        $bot['placeholder'] = sanitize_text_field(wp_unslash($_POST['bot_placeholder'] ?? ''));
-        $bot['button_label'] = sanitize_text_field(wp_unslash($_POST['bot_button_label'] ?? ''));
+        $bot_defaults = wp7rss_default_bot_settings();
+        $bot['image_alt'] = sanitize_text_field(wp_unslash($_POST['bot_image_alt'] ?? '')) ?: $bot_defaults['image_alt'];
+        $bot['bubble_text'] = sanitize_text_field(wp_unslash($_POST['bot_bubble_text'] ?? '')) ?: $bot_defaults['bubble_text'];
+        $bot['placeholder'] = sanitize_text_field(wp_unslash($_POST['bot_placeholder'] ?? '')) ?: $bot_defaults['placeholder'];
+        $bot['button_label'] = sanitize_text_field(wp_unslash($_POST['bot_button_label'] ?? '')) ?: $bot_defaults['button_label'];
         $bot['hide_mobile'] = empty($_POST['bot_hide_mobile']) ? 0 : 1;
         $bot['remember_dismissal'] = in_array($_POST['bot_remember_dismissal'] ?? 'session', array('never', 'page', 'session', 'persistent'), true) ? sanitize_key($_POST['bot_remember_dismissal']) : 'session';
         $bot['excluded_urls'] = sanitize_textarea_field(wp_unslash($_POST['bot_excluded_urls'] ?? ''));
@@ -190,6 +191,9 @@ function wp7rss_render_admin_tab($tab) {
             </p>
         <?php elseif ('search-bot' === $tab) : ?>
             <h2><?php esc_html_e('Search Bot', WP7RSS_TEXT_DOMAIN); ?></h2>
+            <div class="notice notice-info inline">
+                <p><?php esc_html_e('The Search Bot appears on all frontend pages when enabled, except WordPress search results pages and admin screens.', WP7RSS_TEXT_DOMAIN); ?></p>
+            </div>
             <p><label><input type="checkbox" name="bot_enabled" value="1" <?php checked($bot['enabled']); ?>> <?php esc_html_e('Enable Search Bot', WP7RSS_TEXT_DOMAIN); ?></label></p>
             <?php wp7rss_number_input('bot_delay_seconds', __('Delay seconds', WP7RSS_TEXT_DOMAIN), $bot['delay_seconds']); ?>
             <?php wp7rss_text_input('bot_image_id', __('Bot image attachment ID', WP7RSS_TEXT_DOMAIN), $bot['image_id']); ?>
@@ -198,7 +202,26 @@ function wp7rss_render_admin_tab($tab) {
             <?php wp7rss_text_input('bot_placeholder', __('Placeholder', WP7RSS_TEXT_DOMAIN), $bot['placeholder']); ?>
             <?php wp7rss_text_input('bot_button_label', __('Button label', WP7RSS_TEXT_DOMAIN), $bot['button_label']); ?>
             <p><label><input type="checkbox" name="bot_hide_mobile" value="1" <?php checked($bot['hide_mobile']); ?>> <?php esc_html_e('Hide on mobile', WP7RSS_TEXT_DOMAIN); ?></label></p>
+            <p>
+                <label for="bot_remember_dismissal"><?php esc_html_e('Remember dismissal', WP7RSS_TEXT_DOMAIN); ?></label><br>
+                <select name="bot_remember_dismissal" id="bot_remember_dismissal">
+                    <option value="never" <?php selected($bot['remember_dismissal'], 'never'); ?>><?php esc_html_e('Never', WP7RSS_TEXT_DOMAIN); ?></option>
+                    <option value="page" <?php selected($bot['remember_dismissal'], 'page'); ?>><?php esc_html_e('Current page view', WP7RSS_TEXT_DOMAIN); ?></option>
+                    <option value="session" <?php selected($bot['remember_dismissal'], 'session'); ?>><?php esc_html_e('Session', WP7RSS_TEXT_DOMAIN); ?></option>
+                    <option value="persistent" <?php selected($bot['remember_dismissal'], 'persistent'); ?>><?php esc_html_e('Persistent', WP7RSS_TEXT_DOMAIN); ?></option>
+                </select>
+            </p>
             <?php wp7rss_textarea('bot_excluded_urls', __('Excluded URLs/templates', WP7RSS_TEXT_DOMAIN), $bot['excluded_urls']); ?>
+            <div class="wp7rss-search-bot-preview" aria-label="<?php esc_attr_e('Search Bot preview', WP7RSS_TEXT_DOMAIN); ?>">
+                <strong><?php esc_html_e('Preview', WP7RSS_TEXT_DOMAIN); ?></strong>
+                <div class="wp7rss-search-bot__bubble">
+                    <p><?php echo esc_html($bot['bubble_text']); ?></p>
+                    <div class="wp7rss-search-bot__form">
+                        <input type="search" disabled placeholder="<?php echo esc_attr($bot['placeholder']); ?>">
+                        <button type="button" disabled><?php echo esc_html($bot['button_label']); ?></button>
+                    </div>
+                </div>
+            </div>
         <?php elseif ('advanced' === $tab) : ?>
             <h2><?php esc_html_e('Advanced', WP7RSS_TEXT_DOMAIN); ?></h2>
             <p>

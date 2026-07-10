@@ -38,13 +38,8 @@
 
     function initSearchBot() {
         var config = window.WP7RSS && window.WP7RSS.bot ? window.WP7RSS.bot : {};
-        if (!config.enabled) {
-            return;
-        }
-
-        var blocks = Array.prototype.slice.call(document.querySelectorAll('[data-wp7rss-search-block]'));
         var bot = document.querySelector('[data-wp7rss-search-bot]');
-        if (!blocks.length || !bot || isDismissed(config.rememberDismissal || 'session')) {
+        if (!config.enabled || !bot || isDismissed(config.rememberDismissal || 'session')) {
             return;
         }
 
@@ -52,34 +47,22 @@
             return;
         }
 
-        var visibleBlocks = new Set(blocks);
-        var timer = null;
+        var delay = Number.isFinite(config.delay) ? config.delay : 8000;
         var toggle = bot.querySelector('[data-wp7rss-bot-toggle]');
         var dismiss = bot.querySelector('[data-wp7rss-bot-dismiss]');
+
+        function show() {
+            bot.hidden = false;
+            if (toggle) {
+                toggle.setAttribute('aria-expanded', 'true');
+            }
+        }
 
         function hide() {
             bot.hidden = true;
             if (toggle) {
                 toggle.setAttribute('aria-expanded', 'false');
             }
-        }
-
-        function show() {
-            if (!visibleBlocks.size) {
-                bot.hidden = false;
-                if (toggle) {
-                    toggle.setAttribute('aria-expanded', 'true');
-                }
-            }
-        }
-
-        function schedule() {
-            window.clearTimeout(timer);
-            if (visibleBlocks.size) {
-                hide();
-                return;
-            }
-            timer = window.setTimeout(show, config.delay || 8000);
         }
 
         if (toggle) {
@@ -96,25 +79,7 @@
             });
         }
 
-        if (!('IntersectionObserver' in window)) {
-            window.setTimeout(show, config.delay || 8000);
-            return;
-        }
-
-        var observer = new IntersectionObserver(function (entries) {
-            entries.forEach(function (entry) {
-                if (entry.isIntersecting) {
-                    visibleBlocks.add(entry.target);
-                } else {
-                    visibleBlocks.delete(entry.target);
-                }
-            });
-            schedule();
-        }, { threshold: 0.05 });
-
-        blocks.forEach(function (block) {
-            observer.observe(block);
-        });
+        window.setTimeout(show, delay);
     }
 
     ready(initSearchBot);

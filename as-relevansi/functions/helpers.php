@@ -101,9 +101,15 @@ function wp7rss_get_ai_connector_status() {
         'message' => __('AI Connector not available.', WP7RSS_TEXT_DOMAIN),
     );
 
+    $native_status = wp7rss_get_native_wp_ai_connector_status($default);
+    if ($native_status['available']) {
+        $default = $native_status;
+    }
+
     /**
      * Lets the WP7/AlphaSys AI Connector expose status without hard coupling this plugin to
-     * a specific connector class.
+     * a specific connector class. Native WordPress 7 Connectors are detected before this
+     * filter runs, so custom integrations can still override or enrich the status.
      */
     $status = apply_filters('wp7rss_ai_connector_status', $default);
     $status = is_array($status) ? wp_parse_args($status, $default) : $default;
@@ -112,6 +118,65 @@ function wp7rss_get_ai_connector_status() {
     $status['callable'] = (bool) $status['callable'];
 
     return $status;
+}
+
+function wp7rss_get_native_wp_ai_connector_status($default) {
+    if (!function_exists('wp_get_connectors') || !class_exists('\\WordPress\\AiClient\\AiClient')) {
+        return $default;
+    }
+
+    try {
+        $registry = \WordPress\AiClient\AiClient::defaultRegistry();
+        foreach (wp_get_connectors() as $connector_id => $connector_data) {
+            if ('ai_provider' !== ($connector_data['type'] ?? '')) {
+                continue;
+            }
+
+            $has_provider = method_exists($registry, 'hasProvider') && $registry->hasProvider($connector_id);
+            $is_configured = $has_provider && method_exists($registry, 'isProviderConfigured') && $registry->isProviderConfigured($connector_id);
+            if (!$has_provider) {
+                continue;
+            }
+
+            $name = sanitize_text_field($connector_data['name'] ?? $connector_id);
+            if (!$is_configured) {
+                $default = array_merge($default, array(
+                    'available' => true,
+                    'configured' => false,
+                    'callable' => false,
+                    'name' => $name,
+                    'provider' => sanitize_key($connector_id),
+                    'model' => '',
+                    'message' => sprintf(
+                        /* translators: %s: connector name. */
+                        __('%s connector is registered but not configured.', WP7RSS_TEXT_DOMAIN),
+                        $name
+                    ),
+                ));
+                continue;
+            }
+
+            return array(
+                'available' => true,
+                'configured' => true,
+                'callable' => true,
+                'name' => $name,
+                'provider' => sanitize_key($connector_id),
+                'model' => '',
+                'message' => sprintf(
+                    /* translators: %s: connector name. */
+                    __('%s connector is connected through native WordPress Connectors.', WP7RSS_TEXT_DOMAIN),
+                    $name
+                ),
+            );
+        }
+    } catch (Throwable $e) {
+        return array_merge($default, array(
+            'message' => sanitize_text_field($e->getMessage()),
+        ));
+    }
+
+    return $default;
 }
 
 function wp7rss_ai_connector_available() {

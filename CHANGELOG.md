@@ -2,6 +2,11 @@
 
 All notable changes to Relevanssi Extended are recorded here.
 
+## 0.1.1 - 2026-07-10
+
+- Added native WordPress 7 Connectors detection for configured AI providers.
+- Recognises connected providers through the WP AI Client registry, including OpenAI.
+
 ## 0.1.0 - 2026-07-10
 
 - Added initial AlphaSys plugin scaffold.

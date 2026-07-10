@@ -4,6 +4,7 @@ if (!defined('ABSPATH')) {
 }
 
 add_action('admin_menu', 'wp7rss_register_admin_page');
+add_action('admin_init', 'wp7rss_reconcile_admin_status');
 add_action('admin_init', 'wp7rss_handle_admin_actions');
 
 function wp7rss_register_admin_page() {
@@ -80,6 +81,21 @@ function wp7rss_handle_admin_actions() {
         $wpdb->query("TRUNCATE TABLE {$wpdb->prefix}wp7rss_ai_logs");
         wp_safe_redirect(add_query_arg(array('page' => 'wp7rss-semantic-search', 'tab' => 'ai-logs'), admin_url('options-general.php')));
         exit;
+    }
+}
+
+function wp7rss_reconcile_admin_status() {
+    if (!current_user_can('manage_options')) {
+        return;
+    }
+
+    update_option('wp7rss_ai_status', wp7rss_get_ai_connector_status());
+
+    $topic = wp7rss_get_topic_status();
+    if ('disabled_no_ai_connector' === $topic['status'] && wp7rss_ai_connector_available()) {
+        $topic['status'] = 'not_started';
+        $topic['last_error'] = '';
+        update_option('wp7rss_topic_map_status', $topic);
     }
 }
 

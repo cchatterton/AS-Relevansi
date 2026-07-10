@@ -1,0 +1,23 @@
+{
+  "apiVersion": 2,
+  "name": "wp7rss/search-block",
+  "title": "Relevanssi Extended Search",
+  "category": "widgets",
+  "icon": "search",
+  "description": "A reusable search form that preserves the original WordPress search query.",
+  "textdomain": "as-relevansi",
+  "attributes": {
+    "placeholder": { "type": "string", "default": "" },
+    "buttonLabel": { "type": "string", "default": "" },
+    "heading": { "type": "string", "default": "" },
+    "intro": { "type": "string", "default": "" },
+    "cssClass": { "type": "string", "default": "" },
+    "resultsUrl": { "type": "string", "default": "" },
+    "intentLabel": { "type": "string", "default": "" },
+    "enableBot": { "type": "boolean", "default": true },
+    "blockInstanceId": { "type": "string", "default": "" }
+  },
+  "editorScript": "file:./index.js",
+  "style": "wp7rss-frontend",
+  "render": "file:./render.php"
+}

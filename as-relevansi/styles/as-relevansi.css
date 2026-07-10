@@ -1,0 +1,121 @@
+.wp7rss-search-block {
+    max-width: 44rem;
+}
+
+.wp7rss-search-block__heading {
+    margin: 0 0 0.5rem;
+}
+
+.wp7rss-search-block__intro {
+    margin: 0 0 1rem;
+}
+
+.wp7rss-search-block__form,
+.wp7rss-search-block__form-preview,
+.wp7rss-search-bot__form {
+    display: flex;
+    gap: 0.5rem;
+    align-items: stretch;
+}
+
+.wp7rss-search-block input[type="search"],
+.wp7rss-search-block__form-preview input,
+.wp7rss-search-bot input[type="search"] {
+    min-width: 0;
+    flex: 1 1 auto;
+    padding: 0.7rem 0.85rem;
+    border: 1px solid #767676;
+    border-radius: 4px;
+    font: inherit;
+}
+
+.wp7rss-search-block button,
+.wp7rss-search-block__form-preview button,
+.wp7rss-search-bot button[type="submit"] {
+    flex: 0 0 auto;
+    padding: 0.7rem 1rem;
+    border: 0;
+    border-radius: 4px;
+    background: #1d4f91;
+    color: #fff;
+    font: inherit;
+    cursor: pointer;
+}
+
+.wp7rss-search-bot {
+    position: fixed;
+    left: 1rem;
+    bottom: 1rem;
+    z-index: 9998;
+    display: flex;
+    align-items: flex-end;
+    gap: 0.75rem;
+    max-width: min(34rem, calc(100vw - 2rem));
+}
+
+.wp7rss-search-bot[hidden] {
+    display: none;
+}
+
+.wp7rss-search-bot__avatar {
+    width: 3.25rem;
+    height: 3.25rem;
+    border: 0;
+    border-radius: 50%;
+    background: #1d4f91;
+    color: #fff;
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.22);
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.wp7rss-search-bot__avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.wp7rss-search-bot__bubble {
+    position: relative;
+    width: min(26rem, calc(100vw - 6rem));
+    padding: 1rem;
+    border: 1px solid #d5dbe3;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 0.7rem 2rem rgba(0, 0, 0, 0.18);
+}
+
+.wp7rss-search-bot__bubble p {
+    margin: 0 2rem 0.75rem 0;
+}
+
+.wp7rss-search-bot__dismiss {
+    position: absolute;
+    top: 0.35rem;
+    right: 0.45rem;
+    border: 0;
+    background: transparent;
+    color: #28313d;
+    font-size: 1.4rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.wp7rss-admin .wp7rss-status-table {
+    max-width: 52rem;
+    margin-top: 1rem;
+}
+
+@media (max-width: 640px) {
+    .wp7rss-search-block__form,
+    .wp7rss-search-bot__form {
+        flex-direction: column;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .wp7rss-search-bot * {
+        transition: none;
+        animation: none;
+    }
+}

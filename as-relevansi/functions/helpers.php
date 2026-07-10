@@ -63,11 +63,31 @@ function wp7rss_get_settings() {
 }
 
 function wp7rss_get_block_defaults() {
-    return wp_parse_args((array) get_option('wp7rss_block_defaults', array()), wp7rss_default_block_settings());
+    $defaults = wp7rss_default_block_settings();
+    $settings = wp_parse_args((array) get_option('wp7rss_block_defaults', array()), $defaults);
+    foreach (array('placeholder', 'button_label', 'intent_label') as $key) {
+        if ('' === trim((string) $settings[$key])) {
+            $settings[$key] = $defaults[$key];
+        }
+    }
+
+    return $settings;
 }
 
 function wp7rss_get_bot_settings() {
-    return wp_parse_args((array) get_option('wp7rss_search_bot_settings', array()), wp7rss_default_bot_settings());
+    $defaults = wp7rss_default_bot_settings();
+    $settings = wp_parse_args((array) get_option('wp7rss_search_bot_settings', array()), $defaults);
+    foreach (array('image_alt', 'bubble_text', 'placeholder', 'button_label') as $key) {
+        if ('' === trim((string) $settings[$key])) {
+            $settings[$key] = $defaults[$key];
+        }
+    }
+
+    if (!in_array($settings['remember_dismissal'], array('never', 'page', 'session', 'persistent'), true)) {
+        $settings['remember_dismissal'] = $defaults['remember_dismissal'];
+    }
+
+    return $settings;
 }
 
 function wp7rss_get_topic_status() {

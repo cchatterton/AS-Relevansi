@@ -106,6 +106,17 @@
     margin-top: 1rem;
 }
 
+.wp7rss-search-bot-preview {
+    max-width: 30rem;
+    margin: 1rem 0;
+}
+
+.wp7rss-search-bot-preview .wp7rss-search-bot__bubble {
+    position: static;
+    width: auto;
+    margin-top: 0.5rem;
+}
+
 @media (max-width: 640px) {
     .wp7rss-search-block__form,
     .wp7rss-search-bot__form {

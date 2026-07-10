@@ -53,13 +53,14 @@
 
         function show() {
             bot.hidden = false;
+            bot.classList.add('is-open');
             if (toggle) {
                 toggle.setAttribute('aria-expanded', 'true');
             }
         }
 
-        function hide() {
-            bot.hidden = true;
+        function closePanel() {
+            bot.classList.remove('is-open');
             if (toggle) {
                 toggle.setAttribute('aria-expanded', 'false');
             }
@@ -67,20 +68,56 @@
 
         if (toggle) {
             toggle.addEventListener('click', function () {
-                bot.hidden = !bot.hidden;
-                toggle.setAttribute('aria-expanded', bot.hidden ? 'false' : 'true');
+                bot.hidden = false;
+                bot.classList.toggle('is-open');
+                toggle.setAttribute('aria-expanded', bot.classList.contains('is-open') ? 'true' : 'false');
             });
         }
 
         if (dismiss) {
             dismiss.addEventListener('click', function () {
                 setDismissed(config.rememberDismissal || 'session');
-                hide();
+                bot.hidden = true;
+                closePanel();
             });
         }
 
         window.setTimeout(show, delay);
     }
 
+    function initAdminMediaPicker() {
+        var select = document.querySelector('[data-wp7rss-media-select]');
+        var clear = document.querySelector('[data-wp7rss-media-clear]');
+        var input = document.getElementById('bot_image_id');
+        var preview = document.querySelector('[data-wp7rss-media-preview]');
+        if (!select || !input || !preview || !window.wp || !window.wp.media) {
+            return;
+        }
+
+        select.addEventListener('click', function () {
+            var frame = window.wp.media({
+                title: 'Choose Search Bot image',
+                button: { text: 'Use this image' },
+                multiple: false
+            });
+            frame.on('select', function () {
+                var attachment = frame.state().get('selection').first().toJSON();
+                input.value = attachment.id || '';
+                preview.innerHTML = attachment.sizes && attachment.sizes.thumbnail
+                    ? '<img src="' + attachment.sizes.thumbnail.url + '" alt="">'
+                    : '<img src="' + attachment.url + '" alt="">';
+            });
+            frame.open();
+        });
+
+        if (clear) {
+            clear.addEventListener('click', function () {
+                input.value = '0';
+                preview.innerHTML = '<span>No image selected</span>';
+            });
+        }
+    }
+
     ready(initSearchBot);
+    ready(initAdminMediaPicker);
 })();

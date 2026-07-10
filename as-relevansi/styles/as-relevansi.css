@@ -11,16 +11,14 @@
 }
 
 .wp7rss-search-block__form,
-.wp7rss-search-block__form-preview,
-.wp7rss-search-bot__form {
+.wp7rss-search-block__form-preview {
     display: flex;
     gap: 0.5rem;
     align-items: stretch;
 }
 
 .wp7rss-search-block input[type="search"],
-.wp7rss-search-block__form-preview input,
-.wp7rss-search-bot input[type="search"] {
+.wp7rss-search-block__form-preview input {
     min-width: 0;
     flex: 1 1 auto;
     padding: 0.7rem 0.85rem;
@@ -30,8 +28,7 @@
 }
 
 .wp7rss-search-block button,
-.wp7rss-search-block__form-preview button,
-.wp7rss-search-bot button[type="submit"] {
+.wp7rss-search-block__form-preview button {
     flex: 0 0 auto;
     padding: 0.7rem 1rem;
     border: 0;
@@ -44,59 +41,123 @@
 
 .wp7rss-search-bot {
     position: fixed;
-    left: 1rem;
     bottom: 1rem;
     z-index: 9998;
-    display: flex;
-    align-items: flex-end;
+    display: grid;
     gap: 0.75rem;
-    max-width: min(34rem, calc(100vw - 2rem));
+    width: min(24rem, calc(100vw - 2rem));
+    color: #172033;
+    font-family: inherit;
+}
+
+.wp7rss-search-bot--bottom-left {
+    left: 1rem;
+}
+
+.wp7rss-search-bot--bottom-right {
+    right: 1rem;
 }
 
 .wp7rss-search-bot[hidden] {
     display: none;
 }
 
-.wp7rss-search-bot__avatar {
-    width: 3.25rem;
-    height: 3.25rem;
-    border: 0;
-    border-radius: 50%;
-    background: #1d4f91;
+.wp7rss-search-bot__launcher {
+    justify-self: end;
+    width: 4rem;
+    height: 4rem;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 999px;
+    background: linear-gradient(135deg, #193a7a, #2e7bd8);
     color: #fff;
-    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.22);
+    box-shadow: 0 1rem 2.5rem rgba(13, 28, 56, 0.28);
     cursor: pointer;
     overflow: hidden;
+    font-weight: 800;
+    letter-spacing: 0;
 }
 
-.wp7rss-search-bot__avatar img {
+.wp7rss-search-bot--bottom-left .wp7rss-search-bot__launcher {
+    justify-self: start;
+}
+
+.wp7rss-search-bot__launcher img {
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
-.wp7rss-search-bot__bubble {
+.wp7rss-search-bot__panel {
+    display: none;
     position: relative;
-    width: min(26rem, calc(100vw - 6rem));
     padding: 1rem;
-    border: 1px solid #d5dbe3;
-    border-radius: 8px;
-    background: #fff;
-    box-shadow: 0 0.7rem 2rem rgba(0, 0, 0, 0.18);
+    border: 1px solid rgba(119, 138, 165, 0.25);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 1.4rem 3.5rem rgba(13, 28, 56, 0.22);
+    backdrop-filter: blur(10px);
 }
 
-.wp7rss-search-bot__bubble p {
-    margin: 0 2rem 0.75rem 0;
+.wp7rss-search-bot.is-open .wp7rss-search-bot__panel,
+.wp7rss-search-bot-preview .wp7rss-search-bot__panel {
+    display: block;
+}
+
+.wp7rss-search-bot__message {
+    max-width: 85%;
+    margin: 0 2rem 0.8rem 0;
+    padding: 0.72rem 0.85rem;
+    border-radius: 15px 15px 15px 4px;
+    background: #edf5ff;
+    color: #172033;
+    line-height: 1.35;
+    font-weight: 600;
+}
+
+.wp7rss-search-bot__composer {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.35rem;
+    border: 1px solid #d7e0ec;
+    border-radius: 999px;
+    background: #f8fafc;
+}
+
+.wp7rss-search-bot__composer input[type="search"] {
+    min-width: 0;
+    flex: 1 1 auto;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    padding: 0.58rem 0.65rem;
+    font: inherit;
+}
+
+.wp7rss-search-bot__composer button {
+    flex: 0 0 auto;
+    min-width: 3.6rem;
+    border: 0;
+    border-radius: 999px;
+    background: #193a7a;
+    color: #fff;
+    padding: 0.58rem 0.85rem;
+    font: inherit;
+    font-weight: 800;
+    cursor: pointer;
 }
 
 .wp7rss-search-bot__dismiss {
     position: absolute;
-    top: 0.35rem;
-    right: 0.45rem;
+    top: 0.6rem;
+    right: 0.65rem;
+    width: 1.8rem;
+    height: 1.8rem;
     border: 0;
-    background: transparent;
-    color: #28313d;
-    font-size: 1.4rem;
+    border-radius: 999px;
+    background: #eef2f7;
+    color: #3d4b60;
+    font-size: 1.2rem;
     line-height: 1;
     cursor: pointer;
 }
@@ -106,12 +167,34 @@
     margin-top: 1rem;
 }
 
-.wp7rss-search-bot-preview {
-    max-width: 30rem;
+.wp7rss-media-field {
     margin: 1rem 0;
 }
 
-.wp7rss-search-bot-preview .wp7rss-search-bot__bubble {
+.wp7rss-media-field__preview {
+    display: grid;
+    place-items: center;
+    width: 7rem;
+    height: 7rem;
+    margin-top: 0.35rem;
+    border: 1px solid #c5ccd6;
+    border-radius: 8px;
+    background: #fff;
+    overflow: hidden;
+}
+
+.wp7rss-media-field__preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.wp7rss-search-bot-preview {
+    max-width: 28rem;
+    margin: 1rem 0;
+}
+
+.wp7rss-search-bot-preview .wp7rss-search-bot__panel {
     position: static;
     width: auto;
     margin-top: 0.5rem;
@@ -119,8 +202,16 @@
 
 @media (max-width: 640px) {
     .wp7rss-search-block__form,
-    .wp7rss-search-bot__form {
+    .wp7rss-search-bot__composer {
         flex-direction: column;
+        align-items: stretch;
+        border-radius: 16px;
+    }
+
+    .wp7rss-search-bot {
+        right: 1rem;
+        left: 1rem;
+        width: auto;
     }
 }
 

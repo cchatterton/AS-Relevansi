@@ -59,23 +59,23 @@ function wp7rss_render_search_bot() {
     wp_enqueue_style('wp7rss-frontend');
     wp_enqueue_script('wp7rss-frontend');
     ?>
-    <div class="wp7rss-search-bot" data-wp7rss-search-bot hidden>
-        <button type="button" class="wp7rss-search-bot__avatar" data-wp7rss-bot-toggle aria-expanded="false" aria-label="<?php echo esc_attr($bot['image_alt']); ?>">
-            <?php if ($image_url) : ?>
-                <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($bot['image_alt']); ?>">
-            <?php else : ?>
-                <span aria-hidden="true">?</span>
-            <?php endif; ?>
-        </button>
-        <div class="wp7rss-search-bot__bubble" data-wp7rss-bot-bubble>
+    <div class="wp7rss-search-bot wp7rss-search-bot--<?php echo esc_attr($bot['position']); ?>" data-wp7rss-search-bot hidden>
+        <div class="wp7rss-search-bot__panel" data-wp7rss-bot-panel>
             <button type="button" class="wp7rss-search-bot__dismiss" data-wp7rss-bot-dismiss aria-label="<?php esc_attr_e('Dismiss search assistant', WP7RSS_TEXT_DOMAIN); ?>">×</button>
-            <p><?php echo esc_html($bot['bubble_text']); ?></p>
-            <form class="wp7rss-search-bot__form" action="<?php echo esc_url(wp7rss_get_results_action_url()); ?>" method="get" role="search">
+            <div class="wp7rss-search-bot__message"><?php echo esc_html($bot['bubble_text']); ?></div>
+            <form class="wp7rss-search-bot__composer" action="<?php echo esc_url(wp7rss_get_results_action_url()); ?>" method="get" role="search">
                 <label class="screen-reader-text" for="wp7rss-search-bot-input"><?php esc_html_e('Search query', WP7RSS_TEXT_DOMAIN); ?></label>
                 <input id="wp7rss-search-bot-input" type="search" name="s" required placeholder="<?php echo esc_attr($bot['placeholder']); ?>">
                 <button type="submit"><?php echo esc_html($bot['button_label']); ?></button>
             </form>
         </div>
+        <button type="button" class="wp7rss-search-bot__launcher" data-wp7rss-bot-toggle aria-expanded="false" aria-label="<?php echo esc_attr($bot['image_alt']); ?>">
+            <?php if ($image_url) : ?>
+                <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($bot['image_alt']); ?>">
+            <?php else : ?>
+                <span aria-hidden="true">Ask</span>
+            <?php endif; ?>
+        </button>
     </div>
     <?php
 }

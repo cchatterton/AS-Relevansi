@@ -27,8 +27,6 @@ function wp7rss_handle_admin_actions() {
 
     if ('save_settings' === $action) {
         $settings = wp7rss_get_settings();
-        $settings['semantic_enabled'] = empty($_POST['semantic_enabled']) ? 0 : 1;
-        $settings['ai_integration_enabled'] = empty($_POST['ai_integration_enabled']) ? 0 : 1;
         $settings['ai_timeout_ms'] = max(500, absint($_POST['ai_timeout_ms'] ?? 2500));
         $settings['max_semantic_terms'] = max(1, min(20, absint($_POST['max_semantic_terms'] ?? 8)));
         $settings['cache_duration_hours'] = max(1, absint($_POST['cache_duration_hours'] ?? 24));
@@ -37,16 +35,6 @@ function wp7rss_handle_admin_actions() {
         $settings['log_retention_days'] = max(1, absint($_POST['log_retention_days'] ?? 30));
         $settings['delete_data_on_uninstall'] = empty($_POST['delete_data_on_uninstall']) ? 0 : 1;
         update_option('wp7rss_settings', $settings);
-
-        $block = wp7rss_get_block_defaults();
-        $block['placeholder'] = sanitize_text_field(wp_unslash($_POST['block_placeholder'] ?? ''));
-        $block['button_label'] = sanitize_text_field(wp_unslash($_POST['block_button_label'] ?? ''));
-        $block['heading'] = sanitize_text_field(wp_unslash($_POST['block_heading'] ?? ''));
-        $block['intro'] = sanitize_textarea_field(wp_unslash($_POST['block_intro'] ?? ''));
-        $block['intent_label'] = sanitize_text_field(wp_unslash($_POST['block_intent_label'] ?? ''));
-        $block['css_class'] = sanitize_html_class(wp_unslash($_POST['block_css_class'] ?? ''));
-        $block['results_url'] = esc_url_raw(wp_unslash($_POST['block_results_url'] ?? ''));
-        update_option('wp7rss_block_defaults', $block);
 
         $bot = wp7rss_get_bot_settings();
         $bot['enabled'] = empty($_POST['bot_enabled']) ? 0 : 1;
@@ -57,6 +45,7 @@ function wp7rss_handle_admin_actions() {
         $bot['bubble_text'] = sanitize_text_field(wp_unslash($_POST['bot_bubble_text'] ?? '')) ?: $bot_defaults['bubble_text'];
         $bot['placeholder'] = sanitize_text_field(wp_unslash($_POST['bot_placeholder'] ?? '')) ?: $bot_defaults['placeholder'];
         $bot['button_label'] = sanitize_text_field(wp_unslash($_POST['bot_button_label'] ?? '')) ?: $bot_defaults['button_label'];
+        $bot['position'] = in_array($_POST['bot_position'] ?? 'bottom-right', array('bottom-left', 'bottom-right'), true) ? sanitize_key($_POST['bot_position']) : 'bottom-right';
         $bot['hide_mobile'] = empty($_POST['bot_hide_mobile']) ? 0 : 1;
         $bot['remember_dismissal'] = in_array($_POST['bot_remember_dismissal'] ?? 'session', array('never', 'page', 'session', 'persistent'), true) ? sanitize_key($_POST['bot_remember_dismissal']) : 'session';
         $bot['excluded_urls'] = sanitize_textarea_field(wp_unslash($_POST['bot_excluded_urls'] ?? ''));
@@ -108,7 +97,6 @@ function wp7rss_render_admin_page() {
     $tab = sanitize_key($_GET['tab'] ?? 'general');
     $tabs = array(
         'general' => __('General', WP7RSS_TEXT_DOMAIN),
-        'search-block' => __('Search Block', WP7RSS_TEXT_DOMAIN),
         'ai-connector' => __('AI Connector', WP7RSS_TEXT_DOMAIN),
         'topic-map' => __('Site Topic Map', WP7RSS_TEXT_DOMAIN),
         'search-bot' => __('Search Bot', WP7RSS_TEXT_DOMAIN),
@@ -130,7 +118,6 @@ function wp7rss_render_admin_page() {
 
 function wp7rss_render_admin_tab($tab) {
     $settings = wp7rss_get_settings();
-    $block = wp7rss_get_block_defaults();
     $bot = wp7rss_get_bot_settings();
     $topic = wp7rss_get_topic_status();
     $ai = wp7rss_get_ai_connector_status();
@@ -152,18 +139,8 @@ function wp7rss_render_admin_tab($tab) {
                     <tr><th><?php esc_html_e('Topic Map status', WP7RSS_TEXT_DOMAIN); ?></th><td><?php echo esc_html($topic['status']); ?></td></tr>
                 </tbody>
             </table>
-            <h2><?php esc_html_e('General Settings', WP7RSS_TEXT_DOMAIN); ?></h2>
-            <p><label><input type="checkbox" name="semantic_enabled" value="1" <?php checked($settings['semantic_enabled']); ?>> <?php esc_html_e('Enable semantic expansion globally', WP7RSS_TEXT_DOMAIN); ?></label></p>
-            <p><label><input type="checkbox" name="ai_integration_enabled" value="1" <?php checked($settings['ai_integration_enabled']); ?>> <?php esc_html_e('Enable AI Connector integration', WP7RSS_TEXT_DOMAIN); ?></label></p>
-        <?php elseif ('search-block' === $tab) : ?>
-            <h2><?php esc_html_e('Search Block Defaults', WP7RSS_TEXT_DOMAIN); ?></h2>
-            <?php wp7rss_text_input('block_placeholder', __('Placeholder', WP7RSS_TEXT_DOMAIN), $block['placeholder']); ?>
-            <?php wp7rss_text_input('block_button_label', __('Button label', WP7RSS_TEXT_DOMAIN), $block['button_label']); ?>
-            <?php wp7rss_text_input('block_heading', __('Heading', WP7RSS_TEXT_DOMAIN), $block['heading']); ?>
-            <?php wp7rss_textarea('block_intro', __('Intro text', WP7RSS_TEXT_DOMAIN), $block['intro']); ?>
-            <?php wp7rss_text_input('block_intent_label', __('Search intent label', WP7RSS_TEXT_DOMAIN), $block['intent_label']); ?>
-            <?php wp7rss_text_input('block_css_class', __('CSS class', WP7RSS_TEXT_DOMAIN), $block['css_class']); ?>
-            <?php wp7rss_text_input('block_results_url', __('Results URL override', WP7RSS_TEXT_DOMAIN), $block['results_url']); ?>
+            <h2><?php esc_html_e('General Status', WP7RSS_TEXT_DOMAIN); ?></h2>
+            <p><?php esc_html_e('Semantic expansion is automatic when Relevanssi, a configured WordPress 7 AI Connector, and a ready Site Topic Map are available.', WP7RSS_TEXT_DOMAIN); ?></p>
         <?php elseif ('ai-connector' === $tab) : ?>
             <h2><?php esc_html_e('AI Connector', WP7RSS_TEXT_DOMAIN); ?></h2>
             <table class="widefat striped wp7rss-status-table">
@@ -196,11 +173,32 @@ function wp7rss_render_admin_tab($tab) {
             </div>
             <p><label><input type="checkbox" name="bot_enabled" value="1" <?php checked($bot['enabled']); ?>> <?php esc_html_e('Enable Search Bot', WP7RSS_TEXT_DOMAIN); ?></label></p>
             <?php wp7rss_number_input('bot_delay_seconds', __('Delay seconds', WP7RSS_TEXT_DOMAIN), $bot['delay_seconds']); ?>
-            <?php wp7rss_text_input('bot_image_id', __('Bot image attachment ID', WP7RSS_TEXT_DOMAIN), $bot['image_id']); ?>
+            <div class="wp7rss-media-field">
+                <label><?php esc_html_e('Avatar image', WP7RSS_TEXT_DOMAIN); ?></label>
+                <input type="hidden" id="bot_image_id" name="bot_image_id" value="<?php echo esc_attr($bot['image_id']); ?>">
+                <div class="wp7rss-media-field__preview" data-wp7rss-media-preview>
+                    <?php if (!empty($bot['image_id'])) : ?>
+                        <?php echo wp_get_attachment_image(absint($bot['image_id']), 'thumbnail'); ?>
+                    <?php else : ?>
+                        <span><?php esc_html_e('No image selected', WP7RSS_TEXT_DOMAIN); ?></span>
+                    <?php endif; ?>
+                </div>
+                <p>
+                    <button type="button" class="button" data-wp7rss-media-select><?php esc_html_e('Choose image', WP7RSS_TEXT_DOMAIN); ?></button>
+                    <button type="button" class="button" data-wp7rss-media-clear><?php esc_html_e('Remove image', WP7RSS_TEXT_DOMAIN); ?></button>
+                </p>
+            </div>
             <?php wp7rss_text_input('bot_image_alt', __('Bot image alt text', WP7RSS_TEXT_DOMAIN), $bot['image_alt']); ?>
             <?php wp7rss_text_input('bot_bubble_text', __('Bubble text', WP7RSS_TEXT_DOMAIN), $bot['bubble_text']); ?>
             <?php wp7rss_text_input('bot_placeholder', __('Placeholder', WP7RSS_TEXT_DOMAIN), $bot['placeholder']); ?>
-            <?php wp7rss_text_input('bot_button_label', __('Button label', WP7RSS_TEXT_DOMAIN), $bot['button_label']); ?>
+            <?php wp7rss_text_input('bot_button_label', __('Send button label', WP7RSS_TEXT_DOMAIN), $bot['button_label']); ?>
+            <p>
+                <label for="bot_position"><?php esc_html_e('Position', WP7RSS_TEXT_DOMAIN); ?></label><br>
+                <select name="bot_position" id="bot_position">
+                    <option value="bottom-right" <?php selected($bot['position'], 'bottom-right'); ?>><?php esc_html_e('Bottom right', WP7RSS_TEXT_DOMAIN); ?></option>
+                    <option value="bottom-left" <?php selected($bot['position'], 'bottom-left'); ?>><?php esc_html_e('Bottom left', WP7RSS_TEXT_DOMAIN); ?></option>
+                </select>
+            </p>
             <p><label><input type="checkbox" name="bot_hide_mobile" value="1" <?php checked($bot['hide_mobile']); ?>> <?php esc_html_e('Hide on mobile', WP7RSS_TEXT_DOMAIN); ?></label></p>
             <p>
                 <label for="bot_remember_dismissal"><?php esc_html_e('Remember dismissal', WP7RSS_TEXT_DOMAIN); ?></label><br>
@@ -214,9 +212,9 @@ function wp7rss_render_admin_tab($tab) {
             <?php wp7rss_textarea('bot_excluded_urls', __('Excluded URLs/templates', WP7RSS_TEXT_DOMAIN), $bot['excluded_urls']); ?>
             <div class="wp7rss-search-bot-preview" aria-label="<?php esc_attr_e('Search Bot preview', WP7RSS_TEXT_DOMAIN); ?>">
                 <strong><?php esc_html_e('Preview', WP7RSS_TEXT_DOMAIN); ?></strong>
-                <div class="wp7rss-search-bot__bubble">
-                    <p><?php echo esc_html($bot['bubble_text']); ?></p>
-                    <div class="wp7rss-search-bot__form">
+                <div class="wp7rss-search-bot__panel">
+                    <div class="wp7rss-search-bot__message"><?php echo esc_html($bot['bubble_text']); ?></div>
+                    <div class="wp7rss-search-bot__composer">
                         <input type="search" disabled placeholder="<?php echo esc_attr($bot['placeholder']); ?>">
                         <button type="button" disabled><?php echo esc_html($bot['button_label']); ?></button>
                     </div>

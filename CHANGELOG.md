@@ -2,6 +2,14 @@
 
 All notable changes to Relevanssi Extended are recorded here.
 
+## 0.1.7 - 2026-07-10
+
+- Redesigned Search Bot as a chat-style launcher and panel.
+- Added Search Bot left/right placement setting.
+- Replaced avatar attachment ID entry with a WordPress media-library picker.
+- Removed content-owned Search Block defaults from plugin settings.
+- Removed manual AI feature toggles from General settings; AI behavior now follows native WP7 connector availability.
+
 ## 0.1.6 - 2026-07-10
 
 - Changed Search Bot behavior to show on all frontend pages when enabled, except search results pages.

@@ -14,8 +14,6 @@ function wp7rss_bootstrap() {
 
 function wp7rss_default_settings() {
     return array(
-        'semantic_enabled' => 0,
-        'ai_integration_enabled' => 1,
         'ai_timeout_ms' => 2500,
         'max_semantic_terms' => 8,
         'cache_duration_hours' => 24,
@@ -49,8 +47,8 @@ function wp7rss_default_bot_settings() {
         'image_alt' => __('Search assistant', WP7RSS_TEXT_DOMAIN),
         'bubble_text' => __('Can I help you find something?', WP7RSS_TEXT_DOMAIN),
         'placeholder' => __('Search this site...', WP7RSS_TEXT_DOMAIN),
-        'button_label' => __('Search', WP7RSS_TEXT_DOMAIN),
-        'position' => 'bottom-left',
+        'button_label' => __('Send', WP7RSS_TEXT_DOMAIN),
+        'position' => 'bottom-right',
         'hide_mobile' => 1,
         'mobile_delay_seconds' => 8,
         'remember_dismissal' => 'session',
@@ -200,10 +198,9 @@ function wp7rss_get_native_wp_ai_connector_status($default) {
 }
 
 function wp7rss_ai_connector_available() {
-    $settings = wp7rss_get_settings();
     $status = wp7rss_get_ai_connector_status();
 
-    return !empty($settings['ai_integration_enabled']) && $status['available'] && $status['configured'] && $status['callable'];
+    return $status['available'] && $status['configured'] && $status['callable'];
 }
 
 function wp7rss_sanitize_text_list($value) {
@@ -351,7 +348,7 @@ function wp7rss_prepare_search_expansion_context($query) {
 
     $settings = wp7rss_get_settings();
     $topic = wp7rss_get_topic_status();
-    if (empty($settings['semantic_enabled']) || !wp7rss_is_relevanssi_active() || !wp7rss_ai_connector_available() || 'ready' !== $topic['status']) {
+    if (!wp7rss_is_relevanssi_active() || !wp7rss_ai_connector_available() || 'ready' !== $topic['status']) {
         return;
     }
 

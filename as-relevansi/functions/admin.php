@@ -26,32 +26,40 @@ function wp7rss_handle_admin_actions() {
     $action = sanitize_key(wp_unslash($_POST['wp7rss_action_override'] ?? $_POST['wp7rss_action']));
 
     if ('save_settings' === $action) {
+        $settings_tab = sanitize_key(wp_unslash($_POST['wp7rss_settings_tab'] ?? 'general'));
         $settings = wp7rss_get_settings();
-        $settings['use_plugin_css'] = empty($_POST['use_plugin_css']) ? 0 : 1;
-        $settings['ai_timeout_ms'] = max(500, absint($_POST['ai_timeout_ms'] ?? 2500));
-        $settings['max_semantic_terms'] = max(1, min(20, absint($_POST['max_semantic_terms'] ?? 8)));
-        $settings['cache_duration_hours'] = max(1, absint($_POST['cache_duration_hours'] ?? 24));
-        $settings['logging_mode'] = in_array($_POST['logging_mode'] ?? 'metadata', array('off', 'metadata', 'full'), true) ? sanitize_key($_POST['logging_mode']) : 'metadata';
-        $settings['log_retention_count'] = max(1, absint($_POST['log_retention_count'] ?? 500));
-        $settings['log_retention_days'] = max(1, absint($_POST['log_retention_days'] ?? 30));
-        $settings['delete_data_on_uninstall'] = empty($_POST['delete_data_on_uninstall']) ? 0 : 1;
-        update_option('wp7rss_settings', $settings);
 
-        $bot = wp7rss_get_bot_settings();
-        $bot['enabled'] = empty($_POST['bot_enabled']) ? 0 : 1;
-        $bot['delay_seconds'] = max(0, absint($_POST['bot_delay_seconds'] ?? 8));
-        $bot['image_id'] = absint($_POST['bot_image_id'] ?? 0);
-        $bot_defaults = wp7rss_default_bot_settings();
-        $bot['image_alt'] = sanitize_text_field(wp_unslash($_POST['bot_image_alt'] ?? '')) ?: $bot_defaults['image_alt'];
-        $bot['bubble_text'] = sanitize_text_field(wp_unslash($_POST['bot_bubble_text'] ?? '')) ?: $bot_defaults['bubble_text'];
-        $bot['placeholder'] = sanitize_text_field(wp_unslash($_POST['bot_placeholder'] ?? '')) ?: $bot_defaults['placeholder'];
-        $bot['button_label'] = sanitize_text_field(wp_unslash($_POST['bot_button_label'] ?? '')) ?: $bot_defaults['button_label'];
-        $bot['position'] = in_array($_POST['bot_position'] ?? 'bottom-right', array('bottom-left', 'bottom-right'), true) ? sanitize_key($_POST['bot_position']) : 'bottom-right';
-        $bot['hide_mobile'] = empty($_POST['bot_hide_mobile']) ? 0 : 1;
-        $bot['excluded_urls'] = sanitize_textarea_field(wp_unslash($_POST['bot_excluded_urls'] ?? ''));
-        update_option('wp7rss_search_bot_settings', $bot);
+        if ('general' === $settings_tab) {
+            $settings['use_plugin_css'] = empty($_POST['use_plugin_css']) ? 0 : 1;
+            update_option('wp7rss_settings', $settings);
+        } elseif ('ai-connector' === $settings_tab) {
+            $settings['ai_timeout_ms'] = max(500, absint($_POST['ai_timeout_ms'] ?? 2500));
+            $settings['max_semantic_terms'] = max(1, min(20, absint($_POST['max_semantic_terms'] ?? 8)));
+            $settings['cache_duration_hours'] = max(1, absint($_POST['cache_duration_hours'] ?? 24));
+            update_option('wp7rss_settings', $settings);
+        } elseif ('advanced' === $settings_tab) {
+            $settings['logging_mode'] = in_array($_POST['logging_mode'] ?? 'metadata', array('off', 'metadata', 'full'), true) ? sanitize_key($_POST['logging_mode']) : 'metadata';
+            $settings['log_retention_count'] = max(1, absint($_POST['log_retention_count'] ?? 500));
+            $settings['log_retention_days'] = max(1, absint($_POST['log_retention_days'] ?? 30));
+            $settings['delete_data_on_uninstall'] = empty($_POST['delete_data_on_uninstall']) ? 0 : 1;
+            update_option('wp7rss_settings', $settings);
+        } elseif ('search-bot' === $settings_tab) {
+            $bot = wp7rss_get_bot_settings();
+            $bot['enabled'] = empty($_POST['bot_enabled']) ? 0 : 1;
+            $bot['delay_seconds'] = max(0, absint($_POST['bot_delay_seconds'] ?? 8));
+            $bot['image_id'] = absint($_POST['bot_image_id'] ?? 0);
+            $bot_defaults = wp7rss_default_bot_settings();
+            $bot['image_alt'] = sanitize_text_field(wp_unslash($_POST['bot_image_alt'] ?? '')) ?: $bot_defaults['image_alt'];
+            $bot['bubble_text'] = sanitize_text_field(wp_unslash($_POST['bot_bubble_text'] ?? '')) ?: $bot_defaults['bubble_text'];
+            $bot['placeholder'] = sanitize_text_field(wp_unslash($_POST['bot_placeholder'] ?? '')) ?: $bot_defaults['placeholder'];
+            $bot['button_label'] = sanitize_text_field(wp_unslash($_POST['bot_button_label'] ?? '')) ?: $bot_defaults['button_label'];
+            $bot['position'] = in_array($_POST['bot_position'] ?? 'bottom-right', array('bottom-left', 'bottom-right'), true) ? sanitize_key($_POST['bot_position']) : 'bottom-right';
+            $bot['hide_mobile'] = empty($_POST['bot_hide_mobile']) ? 0 : 1;
+            $bot['excluded_urls'] = sanitize_textarea_field(wp_unslash($_POST['bot_excluded_urls'] ?? ''));
+            update_option('wp7rss_search_bot_settings', $bot);
+        }
 
-        wp_safe_redirect(add_query_arg(array('page' => 'wp7rss-semantic-search', 'updated' => '1'), admin_url('options-general.php')));
+        wp_safe_redirect(add_query_arg(array('page' => 'wp7rss-semantic-search', 'tab' => $settings_tab, 'updated' => '1'), admin_url('options-general.php')));
         exit;
     }
 
@@ -130,6 +138,7 @@ function wp7rss_render_admin_tab($tab) {
     <form method="post" action="">
         <?php wp_nonce_field('wp7rss_admin_action'); ?>
         <input type="hidden" name="wp7rss_action" value="save_settings">
+        <input type="hidden" name="wp7rss_settings_tab" value="<?php echo esc_attr($tab); ?>">
 
         <?php if ('general' === $tab) : ?>
             <table class="widefat striped wp7rss-status-table">

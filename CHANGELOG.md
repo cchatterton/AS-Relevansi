@@ -2,6 +2,11 @@
 
 All notable changes to Relevanssi Extended are recorded here.
 
+## 0.1.10 - 2026-07-11
+
+- Fixed tabbed settings saves so General, AI Connector, Search Bot, and Advanced tabs no longer overwrite each other.
+- Saving the CSS toggle no longer clears Search Bot settings, and saving Search Bot settings no longer changes the CSS toggle.
+
 ## 0.1.9 - 2026-07-11
 
 - Changed Search Bot dismiss behaviour so the close button closes only the speech bubble and leaves the launcher visible.

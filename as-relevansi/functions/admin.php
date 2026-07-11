@@ -27,6 +27,7 @@ function wp7rss_handle_admin_actions() {
 
     if ('save_settings' === $action) {
         $settings = wp7rss_get_settings();
+        $settings['use_plugin_css'] = empty($_POST['use_plugin_css']) ? 0 : 1;
         $settings['ai_timeout_ms'] = max(500, absint($_POST['ai_timeout_ms'] ?? 2500));
         $settings['max_semantic_terms'] = max(1, min(20, absint($_POST['max_semantic_terms'] ?? 8)));
         $settings['cache_duration_hours'] = max(1, absint($_POST['cache_duration_hours'] ?? 24));
@@ -47,7 +48,6 @@ function wp7rss_handle_admin_actions() {
         $bot['button_label'] = sanitize_text_field(wp_unslash($_POST['bot_button_label'] ?? '')) ?: $bot_defaults['button_label'];
         $bot['position'] = in_array($_POST['bot_position'] ?? 'bottom-right', array('bottom-left', 'bottom-right'), true) ? sanitize_key($_POST['bot_position']) : 'bottom-right';
         $bot['hide_mobile'] = empty($_POST['bot_hide_mobile']) ? 0 : 1;
-        $bot['remember_dismissal'] = in_array($_POST['bot_remember_dismissal'] ?? 'session', array('never', 'page', 'session', 'persistent'), true) ? sanitize_key($_POST['bot_remember_dismissal']) : 'session';
         $bot['excluded_urls'] = sanitize_textarea_field(wp_unslash($_POST['bot_excluded_urls'] ?? ''));
         update_option('wp7rss_search_bot_settings', $bot);
 
@@ -141,6 +141,9 @@ function wp7rss_render_admin_tab($tab) {
             </table>
             <h2><?php esc_html_e('General Status', WP7RSS_TEXT_DOMAIN); ?></h2>
             <p><?php esc_html_e('Semantic expansion is automatic when Relevanssi, a configured WordPress 7 AI Connector, and a ready Site Topic Map are available.', WP7RSS_TEXT_DOMAIN); ?></p>
+            <h2><?php esc_html_e('General Settings', WP7RSS_TEXT_DOMAIN); ?></h2>
+            <p><label><input type="checkbox" name="use_plugin_css" value="1" <?php checked($settings['use_plugin_css']); ?>> <?php esc_html_e('Use plugin CSS', WP7RSS_TEXT_DOMAIN); ?></label></p>
+            <p class="description"><?php esc_html_e('When disabled, Relevanssi Extended will not enqueue its CSS file. Theme or custom CSS must style the Search Bot and block output.', WP7RSS_TEXT_DOMAIN); ?></p>
         <?php elseif ('ai-connector' === $tab) : ?>
             <h2><?php esc_html_e('AI Connector', WP7RSS_TEXT_DOMAIN); ?></h2>
             <table class="widefat striped wp7rss-status-table">
@@ -201,15 +204,6 @@ function wp7rss_render_admin_tab($tab) {
                 </select>
             </p>
             <p><label><input type="checkbox" name="bot_hide_mobile" value="1" <?php checked($bot['hide_mobile']); ?>> <?php esc_html_e('Hide on mobile', WP7RSS_TEXT_DOMAIN); ?></label></p>
-            <p>
-                <label for="bot_remember_dismissal"><?php esc_html_e('Remember dismissal', WP7RSS_TEXT_DOMAIN); ?></label><br>
-                <select name="bot_remember_dismissal" id="bot_remember_dismissal">
-                    <option value="never" <?php selected($bot['remember_dismissal'], 'never'); ?>><?php esc_html_e('Never', WP7RSS_TEXT_DOMAIN); ?></option>
-                    <option value="page" <?php selected($bot['remember_dismissal'], 'page'); ?>><?php esc_html_e('Current page view', WP7RSS_TEXT_DOMAIN); ?></option>
-                    <option value="session" <?php selected($bot['remember_dismissal'], 'session'); ?>><?php esc_html_e('Session', WP7RSS_TEXT_DOMAIN); ?></option>
-                    <option value="persistent" <?php selected($bot['remember_dismissal'], 'persistent'); ?>><?php esc_html_e('Persistent', WP7RSS_TEXT_DOMAIN); ?></option>
-                </select>
-            </p>
             <?php wp7rss_textarea('bot_excluded_urls', __('Excluded URLs/templates', WP7RSS_TEXT_DOMAIN), $bot['excluded_urls']); ?>
             <div class="wp7rss-search-bot-preview" aria-label="<?php esc_attr_e('Search Bot preview', WP7RSS_TEXT_DOMAIN); ?>">
                 <strong><?php esc_html_e('Preview', WP7RSS_TEXT_DOMAIN); ?></strong>

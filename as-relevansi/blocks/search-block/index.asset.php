@@ -6,5 +6,5 @@ return array(
         'wp-block-editor',
         'wp-components',
     ),
-    'version' => '0.1.8',
+    'version' => '0.1.9',
 );

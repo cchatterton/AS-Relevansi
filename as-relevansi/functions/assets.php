@@ -4,14 +4,16 @@ if (!defined('ABSPATH')) {
 }
 
 function wp7rss_register_search_block() {
-    wp_register_style('wp7rss-frontend', WP7RSS_PLUGIN_URL . 'styles/as-relevansi.css', array(), WP7RSS_VERSION);
+    if (wp7rss_use_plugin_css()) {
+        wp_register_style('wp7rss-frontend', WP7RSS_PLUGIN_URL . 'styles/as-relevansi.css', array(), WP7RSS_VERSION);
+    }
     wp_register_script('wp7rss-frontend', WP7RSS_PLUGIN_URL . 'scripts/as-relevansi.js', array(), WP7RSS_VERSION, true);
     register_block_type(WP7RSS_PLUGIN_DIR . 'blocks/search-block');
 }
 
 add_action('wp_enqueue_scripts', 'wp7rss_enqueue_frontend_assets');
 function wp7rss_enqueue_frontend_assets() {
-    if (!wp_style_is('wp7rss-frontend', 'registered')) {
+    if (wp7rss_use_plugin_css() && !wp_style_is('wp7rss-frontend', 'registered')) {
         wp_register_style('wp7rss-frontend', WP7RSS_PLUGIN_URL . 'styles/as-relevansi.css', array(), WP7RSS_VERSION);
     }
     if (!wp_script_is('wp7rss-frontend', 'registered')) {
@@ -36,9 +38,17 @@ function wp7rss_enqueue_admin_assets($hook) {
         return;
     }
 
-    wp_enqueue_style('wp7rss-admin', WP7RSS_PLUGIN_URL . 'styles/as-relevansi.css', array(), WP7RSS_VERSION);
+    if (wp7rss_use_plugin_css()) {
+        wp_enqueue_style('wp7rss-admin', WP7RSS_PLUGIN_URL . 'styles/as-relevansi.css', array(), WP7RSS_VERSION);
+    }
     wp_enqueue_media();
     wp_enqueue_script('wp7rss-admin', WP7RSS_PLUGIN_URL . 'scripts/as-relevansi.js', array(), WP7RSS_VERSION, true);
+}
+
+function wp7rss_use_plugin_css() {
+    $settings = wp7rss_get_settings();
+
+    return !empty($settings['use_plugin_css']);
 }
 
 function wp7rss_render_search_bot() {
@@ -56,7 +66,9 @@ function wp7rss_render_search_bot() {
         $image_url = wp_get_attachment_image_url(absint($bot['image_id']), 'thumbnail');
     }
 
-    wp_enqueue_style('wp7rss-frontend');
+    if (wp7rss_use_plugin_css()) {
+        wp_enqueue_style('wp7rss-frontend');
+    }
     wp_enqueue_script('wp7rss-frontend');
     ?>
     <div class="wp7rss-search-bot wp7rss-search-bot--<?php echo esc_attr($bot['position']); ?>" data-wp7rss-search-bot hidden>

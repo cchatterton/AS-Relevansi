@@ -9,37 +9,10 @@
         document.addEventListener('DOMContentLoaded', fn);
     }
 
-    function dismissalKey() {
-        return 'wp7rss_search_bot_dismissed:' + window.location.pathname;
-    }
-
-    function isDismissed(mode) {
-        if (mode === 'never') {
-            return false;
-        }
-        if (mode === 'persistent') {
-            return window.localStorage.getItem(dismissalKey()) === '1';
-        }
-        if (mode === 'session') {
-            return window.sessionStorage.getItem('wp7rss_search_bot_dismissed') === '1';
-        }
-        return window.sessionStorage.getItem(dismissalKey()) === '1';
-    }
-
-    function setDismissed(mode) {
-        if (mode === 'persistent') {
-            window.localStorage.setItem(dismissalKey(), '1');
-        } else if (mode === 'session') {
-            window.sessionStorage.setItem('wp7rss_search_bot_dismissed', '1');
-        } else if (mode === 'page') {
-            window.sessionStorage.setItem(dismissalKey(), '1');
-        }
-    }
-
     function initSearchBot() {
         var config = window.WP7RSS && window.WP7RSS.bot ? window.WP7RSS.bot : {};
         var bot = document.querySelector('[data-wp7rss-search-bot]');
-        if (!config.enabled || !bot || isDismissed(config.rememberDismissal || 'session')) {
+        if (!config.enabled || !bot) {
             return;
         }
 
@@ -76,8 +49,6 @@
 
         if (dismiss) {
             dismiss.addEventListener('click', function () {
-                setDismissed(config.rememberDismissal || 'session');
-                bot.hidden = true;
                 closePanel();
             });
         }

@@ -2,6 +2,12 @@
 
 All notable changes to Relevanssi Extended are recorded here.
 
+## 0.1.9 - 2026-07-11
+
+- Changed Search Bot dismiss behaviour so the close button closes only the speech bubble and leaves the launcher visible.
+- Removed dismissal persistence from the Search Bot so the launcher remains available across page views while enabled.
+- Added a General setting to enable or disable enqueueing the plugin CSS file.
+
 ## 0.1.8 - 2026-07-11
 
 - Added a prepared topics response view to the Site Topic Map settings tab.

@@ -166,6 +166,7 @@ function wp7rss_render_admin_tab($tab) {
             <p>
                 <button type="submit" class="button button-secondary" name="wp7rss_action_override" value="rebuild_topic_map"><?php esc_html_e('Rebuild topic map', WP7RSS_TEXT_DOMAIN); ?></button>
             </p>
+            <?php wp7rss_render_topic_map_response(); ?>
         <?php elseif ('search-bot' === $tab) : ?>
             <h2><?php esc_html_e('Search Bot', WP7RSS_TEXT_DOMAIN); ?></h2>
             <div class="notice notice-info inline">
@@ -270,6 +271,122 @@ function wp7rss_render_ai_logs_tab() {
             </tbody>
         </table>
     <?php endif; ?>
+    <?php
+}
+
+function wp7rss_get_latest_topic_map_record() {
+    global $wpdb;
+
+    $table = $wpdb->prefix . 'wp7rss_topic_map';
+    $record = $wpdb->get_row("SELECT * FROM $table WHERE status = 'ready' ORDER BY updated_at DESC, id DESC LIMIT 1");
+
+    if (!$record || empty($record->topic_map)) {
+        return null;
+    }
+
+    $topic_map = json_decode($record->topic_map, true);
+    if (!is_array($topic_map)) {
+        return null;
+    }
+
+    return array(
+        'record' => $record,
+        'topic_map' => $topic_map,
+    );
+}
+
+function wp7rss_render_topic_map_response() {
+    $latest = wp7rss_get_latest_topic_map_record();
+    ?>
+    <section class="wp7rss-topic-response">
+        <h2><?php esc_html_e('Prepared Topics Response', WP7RSS_TEXT_DOMAIN); ?></h2>
+        <?php if (!$latest) : ?>
+            <p><?php esc_html_e('No prepared topic map response is available yet. Build the Site Topic Map to generate and store the topics response.', WP7RSS_TEXT_DOMAIN); ?></p>
+        <?php else : ?>
+            <?php
+            $record = $latest['record'];
+            $topic_map = $latest['topic_map'];
+            $topics = isset($topic_map['topics']) && is_array($topic_map['topics']) ? $topic_map['topics'] : array();
+            $protected_terms = isset($topic_map['protected_terms']) && is_array($topic_map['protected_terms']) ? $topic_map['protected_terms'] : array();
+            $warnings = isset($topic_map['warnings']) && is_array($topic_map['warnings']) ? $topic_map['warnings'] : array();
+            ?>
+            <p class="description">
+                <?php
+                printf(
+                    esc_html__('Version %1$s prepared on %2$s.', WP7RSS_TEXT_DOMAIN),
+                    esc_html($record->version_hash),
+                    esc_html($record->updated_at)
+                );
+                ?>
+            </p>
+
+            <?php if (!empty($topics)) : ?>
+                <div class="wp7rss-topic-grid">
+                    <?php foreach ($topics as $topic) : ?>
+                        <?php wp7rss_render_topic_card(is_array($topic) ? $topic : array()); ?>
+                    <?php endforeach; ?>
+                </div>
+            <?php else : ?>
+                <p><?php esc_html_e('The prepared response does not contain any topics.', WP7RSS_TEXT_DOMAIN); ?></p>
+            <?php endif; ?>
+
+            <?php if (!empty($protected_terms)) : ?>
+                <h3><?php esc_html_e('Protected Terms', WP7RSS_TEXT_DOMAIN); ?></h3>
+                <p class="wp7rss-term-list"><?php echo esc_html(implode(', ', array_map('sanitize_text_field', $protected_terms))); ?></p>
+            <?php endif; ?>
+
+            <?php if (!empty($warnings)) : ?>
+                <h3><?php esc_html_e('Warnings', WP7RSS_TEXT_DOMAIN); ?></h3>
+                <ul class="wp7rss-warning-list">
+                    <?php foreach ($warnings as $warning) : ?>
+                        <li><?php echo esc_html(sanitize_text_field($warning)); ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php endif; ?>
+
+            <details class="wp7rss-topic-json">
+                <summary><?php esc_html_e('View raw prepared response JSON', WP7RSS_TEXT_DOMAIN); ?></summary>
+                <pre><?php echo esc_html(wp_json_encode($topic_map, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)); ?></pre>
+            </details>
+        <?php endif; ?>
+    </section>
+    <?php
+}
+
+function wp7rss_render_topic_card($topic) {
+    $title = sanitize_text_field($topic['topic'] ?? __('Untitled topic', WP7RSS_TEXT_DOMAIN));
+    $confidence = sanitize_text_field($topic['confidence'] ?? '');
+    ?>
+    <article class="wp7rss-topic-card">
+        <header class="wp7rss-topic-card__header">
+            <h3><?php echo esc_html($title); ?></h3>
+            <?php if ($confidence) : ?>
+                <span><?php echo esc_html($confidence); ?></span>
+            <?php endif; ?>
+        </header>
+        <?php wp7rss_render_topic_terms(__('Canonical terms', WP7RSS_TEXT_DOMAIN), $topic['canonical_terms'] ?? array()); ?>
+        <?php wp7rss_render_topic_terms(__('Related terms', WP7RSS_TEXT_DOMAIN), $topic['related_terms'] ?? array()); ?>
+        <?php wp7rss_render_topic_terms(__('Likely user phrases', WP7RSS_TEXT_DOMAIN), $topic['likely_user_phrases'] ?? array()); ?>
+        <?php wp7rss_render_topic_terms(__('Mapped post types', WP7RSS_TEXT_DOMAIN), $topic['mapped_post_types'] ?? array()); ?>
+        <?php wp7rss_render_topic_terms(__('Mapped taxonomies', WP7RSS_TEXT_DOMAIN), $topic['mapped_taxonomies'] ?? array()); ?>
+    </article>
+    <?php
+}
+
+function wp7rss_render_topic_terms($label, $terms) {
+    $terms = is_array($terms) ? array_filter(array_map('sanitize_text_field', $terms)) : array();
+    if (empty($terms)) {
+        return;
+    }
+    ?>
+    <div class="wp7rss-topic-card__terms">
+        <strong><?php echo esc_html($label); ?></strong>
+        <ul>
+            <?php foreach ($terms as $term) : ?>
+                <li><?php echo esc_html($term); ?></li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
     <?php
 }
 

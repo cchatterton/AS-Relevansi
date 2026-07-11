@@ -2,6 +2,11 @@
 
 All notable changes to Relevanssi Extended are recorded here.
 
+## 0.1.8 - 2026-07-11
+
+- Added a prepared topics response view to the Site Topic Map settings tab.
+- Shows stored topic cards, protected terms, warnings, and escaped raw JSON for the latest ready topic map.
+
 ## 0.1.7 - 2026-07-10
 
 - Redesigned Search Bot as a chat-style launcher and panel.

@@ -387,8 +387,12 @@ function wp7rss_render_topic_map_response() {
 }
 
 function wp7rss_render_topic_card($topic) {
-    $title = sanitize_text_field($topic['topic'] ?? __('Untitled topic', WP7RSS_TEXT_DOMAIN));
-    $confidence = sanitize_text_field($topic['confidence'] ?? '');
+    $title = wp7rss_get_first_topic_value($topic, array('name', 'topic', 'title', 'label'), __('Untitled topic', WP7RSS_TEXT_DOMAIN));
+    $summary = wp7rss_get_first_topic_value($topic, array('summary', 'description', 'intent_summary'), '');
+    $confidence = wp7rss_get_first_topic_value($topic, array('confidence'), '');
+    $terms = wp7rss_get_first_topic_list($topic, array('terms', 'canonical_terms'));
+    $related_terms = wp7rss_get_first_topic_list($topic, array('related_terms', 'related', 'synonyms'));
+    $likely_phrases = wp7rss_get_first_topic_list($topic, array('likely_user_phrases', 'phrases', 'search_phrases'));
     ?>
     <article class="wp7rss-topic-card">
         <header class="wp7rss-topic-card__header">
@@ -397,13 +401,36 @@ function wp7rss_render_topic_card($topic) {
                 <span><?php echo esc_html($confidence); ?></span>
             <?php endif; ?>
         </header>
-        <?php wp7rss_render_topic_terms(__('Canonical terms', WP7RSS_TEXT_DOMAIN), $topic['canonical_terms'] ?? array()); ?>
-        <?php wp7rss_render_topic_terms(__('Related terms', WP7RSS_TEXT_DOMAIN), $topic['related_terms'] ?? array()); ?>
-        <?php wp7rss_render_topic_terms(__('Likely user phrases', WP7RSS_TEXT_DOMAIN), $topic['likely_user_phrases'] ?? array()); ?>
+        <?php if ($summary) : ?>
+            <p><?php echo esc_html($summary); ?></p>
+        <?php endif; ?>
+        <?php wp7rss_render_topic_terms(__('Terms', WP7RSS_TEXT_DOMAIN), $terms); ?>
+        <?php wp7rss_render_topic_terms(__('Related terms', WP7RSS_TEXT_DOMAIN), $related_terms); ?>
+        <?php wp7rss_render_topic_terms(__('Likely user phrases', WP7RSS_TEXT_DOMAIN), $likely_phrases); ?>
         <?php wp7rss_render_topic_terms(__('Mapped post types', WP7RSS_TEXT_DOMAIN), $topic['mapped_post_types'] ?? array()); ?>
         <?php wp7rss_render_topic_terms(__('Mapped taxonomies', WP7RSS_TEXT_DOMAIN), $topic['mapped_taxonomies'] ?? array()); ?>
     </article>
     <?php
+}
+
+function wp7rss_get_first_topic_value($topic, $keys, $default = '') {
+    foreach ($keys as $key) {
+        if (isset($topic[$key]) && is_scalar($topic[$key]) && '' !== trim((string) $topic[$key])) {
+            return sanitize_text_field((string) $topic[$key]);
+        }
+    }
+
+    return sanitize_text_field((string) $default);
+}
+
+function wp7rss_get_first_topic_list($topic, $keys) {
+    foreach ($keys as $key) {
+        if (isset($topic[$key]) && is_array($topic[$key]) && !empty($topic[$key])) {
+            return $topic[$key];
+        }
+    }
+
+    return array();
 }
 
 function wp7rss_render_topic_terms($label, $terms) {

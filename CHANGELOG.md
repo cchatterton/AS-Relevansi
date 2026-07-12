@@ -2,6 +2,11 @@
 
 All notable changes to Relevanssi Extended are recorded here.
 
+## 0.1.16 - 2026-07-13
+
+- Fixed the Prepared Topics Response renderer to display native AI topic names, summaries, and terms.
+- Added compatibility for both current and legacy topic response field names.
+
 ## 0.1.15 - 2026-07-12
 
 - Added a separate Topic Map AI timeout setting with a 30 second default so background map builds are not limited by the live search timeout.

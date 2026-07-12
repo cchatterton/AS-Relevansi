@@ -2,6 +2,11 @@
 
 All notable changes to Relevanssi Extended are recorded here.
 
+## 0.1.13 - 2026-07-12
+
+- Fixed native AI JSON schemas to satisfy strict OpenAI response schema requirements.
+- Updated failed Topic Map status writes to record current plugin version and source packet counts.
+
 ## 0.1.12 - 2026-07-12
 
 - Added native WordPress 7 AI Connector calls for Site Topic Map generation and live semantic keyword expansion.

@@ -139,11 +139,13 @@ function wp7rss_ai_search_expansion_prompt($packet) {
 function wp7rss_ai_topic_map_schema() {
     return array(
         'type' => 'object',
+        'additionalProperties' => false,
         'properties' => array(
             'topics' => array(
                 'type' => 'array',
                 'items' => array(
                     'type' => 'object',
+                    'additionalProperties' => false,
                     'properties' => array(
                         'name' => array('type' => 'string'),
                         'summary' => array('type' => 'string'),
@@ -155,19 +157,20 @@ function wp7rss_ai_topic_map_schema() {
             'protected_terms' => array('type' => 'array', 'items' => array('type' => 'string')),
             'warnings' => array('type' => 'array', 'items' => array('type' => 'string')),
         ),
-        'required' => array('topics'),
+        'required' => array('topics', 'protected_terms', 'warnings'),
     );
 }
 
 function wp7rss_ai_search_expansion_schema() {
     return array(
         'type' => 'object',
+        'additionalProperties' => false,
         'properties' => array(
             'semantic_terms' => array('type' => 'array', 'items' => array('type' => 'string')),
             'corrected_query' => array('type' => 'string'),
             'intent_summary' => array('type' => 'string'),
         ),
-        'required' => array('semantic_terms'),
+        'required' => array('semantic_terms', 'corrected_query', 'intent_summary'),
     );
 }
 

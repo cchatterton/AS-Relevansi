@@ -5,5 +5,5 @@ return array(
         'wp-element',
         'wp-block-editor',
     ),
-    'version' => '0.1.12',
+    'version' => '0.1.13',
 );

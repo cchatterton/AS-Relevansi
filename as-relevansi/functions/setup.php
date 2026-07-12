@@ -109,6 +109,7 @@ function wp7rss_build_topic_map($source = 'scheduled') {
         update_option('wp7rss_topic_map_status', array_merge(wp7rss_get_topic_status(), array(
             'status' => 'disabled_no_ai_connector',
             'last_attempt' => current_time('mysql'),
+            'plugin_version' => WP7RSS_VERSION,
         )));
         return;
     }
@@ -130,7 +131,11 @@ function wp7rss_build_topic_map($source = 'scheduled') {
         $error_message = is_wp_error($response) ? $response->get_error_message() : __('AI Connector returned an invalid topic map response.', WP7RSS_TEXT_DOMAIN);
         update_option('wp7rss_topic_map_status', array_merge(wp7rss_get_topic_status(), array(
             'status' => 'failed',
+            'last_attempt' => current_time('mysql'),
+            'source_items' => count($packet['items']),
+            'source_terms' => count($packet['terms']),
             'last_error' => $error_message,
+            'plugin_version' => WP7RSS_VERSION,
         )));
         wp7rss_log_ai_call(array(
             'call_type' => 'topic_map_build',

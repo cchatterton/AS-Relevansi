@@ -3,7 +3,7 @@
  * Plugin Name: Relevanssi Extended
  * Plugin URI: https://github.com/cchatterton/AS-Relevansi/releases/latest
  * Description: Extends Relevanssi with a reusable search block, optional AI semantic expansion, a site topic map, search companion, and AI telemetry.
- * Version: 0.1.10
+ * Version: 0.1.11
  * Requires at least: 6.0
  * Requires PHP: 8.1
  * Update URI: https://github.com/cchatterton/AS-Relevansi
@@ -16,7 +16,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('WP7RSS_VERSION', '0.1.10');
+define('WP7RSS_VERSION', '0.1.11');
 define('WP7RSS_PLUGIN_FILE', __FILE__);
 define('WP7RSS_PLUGIN_BASENAME', plugin_basename(__FILE__));
 define('WP7RSS_PLUGIN_DIR', plugin_dir_path(__FILE__));

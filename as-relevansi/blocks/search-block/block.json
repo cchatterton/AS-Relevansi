@@ -1,10 +1,10 @@
 {
   "apiVersion": 2,
   "name": "wp7rss/search-block",
-  "title": "Relevanssi Extended Search",
+  "title": "Search",
   "category": "widgets",
   "icon": "search",
-  "description": "A reusable search form that preserves the original WordPress search query.",
+  "description": "A reusable site search form.",
   "textdomain": "as-relevansi",
   "attributes": {
     "placeholder": { "type": "string", "default": "" },

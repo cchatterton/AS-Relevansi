@@ -2,6 +2,11 @@
 
 All notable changes to Relevanssi Extended are recorded here.
 
+## 0.1.11 - 2026-07-12
+
+- Renamed the editor block to "Search" so clients can find it without knowing the plugin name.
+- Removed Search Block inspector controls for content and implementation metadata.
+
 ## 0.1.10 - 2026-07-11
 
 - Fixed tabbed settings saves so General, AI Connector, Search Bot, and Advanced tabs no longer overwrite each other.

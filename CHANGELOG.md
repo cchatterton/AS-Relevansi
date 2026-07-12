@@ -2,6 +2,10 @@
 
 All notable changes to Relevanssi Extended are recorded here.
 
+## 0.1.14 - 2026-07-12
+
+- Removed the AI temperature request option so native connectors using models that do not support temperature can build Topic Maps.
+
 ## 0.1.13 - 2026-07-12
 
 - Fixed native AI JSON schemas to satisfy strict OpenAI response schema requirements.

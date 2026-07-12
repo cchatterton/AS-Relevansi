@@ -49,7 +49,6 @@ function wp7rss_ai_generate_json($prompt, $schema, $call_type) {
     try {
         $result = wp_ai_client_prompt($prompt)
             ->using_provider($status['provider'])
-            ->using_temperature(0.1)
             ->using_max_tokens('topic_map_build' === $call_type ? 1400 : 500)
             ->as_json_response($schema)
             ->generate_text();

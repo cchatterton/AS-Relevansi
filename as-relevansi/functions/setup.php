@@ -122,13 +122,15 @@ function wp7rss_build_topic_map($source = 'scheduled') {
     )));
 
     $packet = wp7rss_collect_site_vocabulary_packet();
-    $response = apply_filters('wp7rss_ai_build_topic_map', null, $packet);
+    $response = wp7rss_ai_build_topic_map_response($packet);
     $connector = wp7rss_get_ai_connector_status();
 
     if (!is_array($response) || empty($response['topics']) || !is_array($response['topics'])) {
+        $error_code = is_wp_error($response) ? $response->get_error_code() : 'invalid_response';
+        $error_message = is_wp_error($response) ? $response->get_error_message() : __('AI Connector returned an invalid topic map response.', WP7RSS_TEXT_DOMAIN);
         update_option('wp7rss_topic_map_status', array_merge(wp7rss_get_topic_status(), array(
             'status' => 'failed',
-            'last_error' => __('AI Connector returned an invalid topic map response.', WP7RSS_TEXT_DOMAIN),
+            'last_error' => $error_message,
         )));
         wp7rss_log_ai_call(array(
             'call_type' => 'topic_map_build',
@@ -139,6 +141,8 @@ function wp7rss_build_topic_map($source = 'scheduled') {
             'status' => 'invalid_response',
             'request_packet' => $packet,
             'raw_response' => $response,
+            'error_code' => $error_code,
+            'error_message' => $error_message,
             'duration_ms' => (int) round((microtime(true) - $started) * 1000),
         ));
         return;

@@ -1,7 +1,7 @@
 # Relevanssi Extended
 
 Author: AlphaSys  
-Version: 0.1.0  
+Version: 0.1.12  
 Status: Alpha / MVP  
 
 ## Purpose
@@ -11,10 +11,10 @@ Relevanssi Extended adds a reusable WordPress search block, optional AI-assisted
 ## Key Features
 
 - Server-rendered Search Block that submits the canonical `s` query parameter.
-- Optional AI Connector integration through WordPress filters.
+- Native WordPress 7 AI Connector integration for topic maps and semantic keyword expansion.
 - Site Topic Map background build and status tracking.
 - AI call logging in custom database tables with bounded retention.
-- Optional floating Search Bot that only appears on pages containing the Search Block.
+- Optional floating Search Bot for frontend search assistance.
 - GitHub release updater metadata and native WordPress update integration.
 
 ## Folder Structure
@@ -30,7 +30,7 @@ Relevanssi Extended adds a reusable WordPress search block, optional AI-assisted
 
 - The plugin does not replace Relevanssi.
 - The public URL, `$_GET['s']`, `get_search_query()`, and Relevanssi reports remain the original human-entered query.
-- AI Connector support is adapter-based. A connector can integrate with:
+- Native WordPress 7 AI Connector support is built in. Adapter filters remain available for site-specific overrides:
   - `wp7rss_ai_connector_status`
   - `wp7rss_ai_build_topic_map`
   - `wp7rss_ai_expand_search_query`
@@ -38,7 +38,6 @@ Relevanssi Extended adds a reusable WordPress search block, optional AI-assisted
 
 ## Future Considerations
 
-- Add a concrete adapter for the production WP7 AI Connector interface.
 - Add a site-tested Relevanssi result merge/weighting adapter.
 - Expand AI Logs with detail views, filters, and export.
 - Add richer media-library controls for Search Bot image selection.

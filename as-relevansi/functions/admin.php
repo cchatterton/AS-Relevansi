@@ -260,7 +260,7 @@ function wp7rss_render_ai_logs_tab() {
         <p><?php esc_html_e('No AI calls have been made. AI telemetry will appear here once an AI Connector is configured and semantic search expansion is used.', WP7RSS_TEXT_DOMAIN); ?></p>
     <?php else : ?>
         <table class="widefat striped">
-            <thead><tr><th><?php esc_html_e('Date', WP7RSS_TEXT_DOMAIN); ?></th><th><?php esc_html_e('Type', WP7RSS_TEXT_DOMAIN); ?></th><th><?php esc_html_e('Status', WP7RSS_TEXT_DOMAIN); ?></th><th><?php esc_html_e('Query', WP7RSS_TEXT_DOMAIN); ?></th><th><?php esc_html_e('Duration', WP7RSS_TEXT_DOMAIN); ?></th></tr></thead>
+            <thead><tr><th><?php esc_html_e('Date', WP7RSS_TEXT_DOMAIN); ?></th><th><?php esc_html_e('Type', WP7RSS_TEXT_DOMAIN); ?></th><th><?php esc_html_e('Status', WP7RSS_TEXT_DOMAIN); ?></th><th><?php esc_html_e('Query', WP7RSS_TEXT_DOMAIN); ?></th><th><?php esc_html_e('Details', WP7RSS_TEXT_DOMAIN); ?></th><th><?php esc_html_e('Duration', WP7RSS_TEXT_DOMAIN); ?></th></tr></thead>
             <tbody>
             <?php foreach ($logs as $log) : ?>
                 <tr>
@@ -268,6 +268,7 @@ function wp7rss_render_ai_logs_tab() {
                     <td><?php echo esc_html($log->call_type); ?></td>
                     <td><?php echo esc_html($log->status); ?></td>
                     <td><?php echo esc_html($log->search_query); ?></td>
+                    <td><?php echo esc_html(wp7rss_get_ai_log_details($log)); ?></td>
                     <td><?php echo esc_html($log->duration_ms); ?>ms</td>
                 </tr>
             <?php endforeach; ?>
@@ -275,6 +276,33 @@ function wp7rss_render_ai_logs_tab() {
         </table>
     <?php endif; ?>
     <?php
+}
+
+function wp7rss_get_ai_log_details($log) {
+    if (!empty($log->error_message)) {
+        return $log->error_message;
+    }
+
+    if (!empty($log->rejection_reason)) {
+        return ucwords(str_replace('_', ' ', $log->rejection_reason));
+    }
+
+    if (!empty($log->semantic_terms)) {
+        $terms = json_decode((string) $log->semantic_terms, true);
+        if (is_array($terms) && !empty($terms)) {
+            return implode(', ', array_slice(array_map('sanitize_text_field', $terms), 0, 8));
+        }
+    }
+
+    if (!empty($log->cache_status)) {
+        return sprintf(
+            /* translators: %s: cache status. */
+            __('Cache %s', WP7RSS_TEXT_DOMAIN),
+            sanitize_text_field($log->cache_status)
+        );
+    }
+
+    return '';
 }
 
 function wp7rss_get_latest_topic_map_record() {

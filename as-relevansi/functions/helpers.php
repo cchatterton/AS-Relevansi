@@ -349,18 +349,45 @@ function wp7rss_prepare_search_expansion_context($query) {
 
     $settings = wp7rss_get_settings();
     $topic = wp7rss_get_topic_status();
-    if (!wp7rss_is_relevanssi_active() || !wp7rss_ai_connector_available() || 'ready' !== $topic['status']) {
+    $skip_reason = '';
+    if (!wp7rss_is_relevanssi_active()) {
+        $skip_reason = 'relevanssi_missing';
+    } elseif (!wp7rss_ai_connector_available()) {
+        $skip_reason = 'ai_connector_unavailable';
+    } elseif ('ready' !== $topic['status']) {
+        $skip_reason = 'topic_map_not_ready';
+    }
+
+    if ('' !== $skip_reason) {
+        wp7rss_log_ai_call(array(
+            'call_type' => 'live_search_query_expansion',
+            'trigger_source' => 'search',
+            'search_query' => $original_query,
+            'status' => 'skipped',
+            'rejection_reason' => $skip_reason,
+            'response_used' => 0,
+        ));
         return;
     }
 
     $cache_key = 'wp7rss_expansion_' . md5(strtolower($original_query) . '|' . get_locale() . '|' . $topic['version_hash']);
     $cached = get_transient($cache_key);
     if (is_array($cached)) {
+        $terms = wp7rss_validate_semantic_terms($cached, $settings['max_semantic_terms']);
         $GLOBALS['wp7rss_search_context'] = array(
             'original_query' => $original_query,
-            'semantic_terms' => wp7rss_validate_semantic_terms($cached, $settings['max_semantic_terms']),
+            'semantic_terms' => $terms,
             'cache_hit' => true,
         );
+        wp7rss_log_ai_call(array(
+            'call_type' => 'live_search_query_expansion',
+            'trigger_source' => 'search',
+            'search_query' => $original_query,
+            'status' => 'success',
+            'semantic_terms' => $terms,
+            'cache_status' => 'hit',
+            'response_used' => 1,
+        ));
         return;
     }
 
@@ -376,8 +403,10 @@ function wp7rss_prepare_search_expansion_context($query) {
         'topic_map_version' => $topic['version_hash'],
     );
 
-    $response = apply_filters('wp7rss_ai_expand_search_query', null, $packet);
+    $response = wp7rss_ai_expand_search_query_response($packet);
     if (!is_array($response) || empty($response['semantic_terms'])) {
+        $error_code = is_wp_error($response) ? $response->get_error_code() : 'invalid_response';
+        $error_message = is_wp_error($response) ? $response->get_error_message() : __('AI Connector returned an invalid search expansion response.', WP7RSS_TEXT_DOMAIN);
         wp7rss_log_ai_call(array(
             'call_type' => 'live_search_query_expansion',
             'trigger_source' => 'search',
@@ -388,6 +417,8 @@ function wp7rss_prepare_search_expansion_context($query) {
             'status' => 'invalid_response',
             'request_packet' => $packet,
             'raw_response' => $response,
+            'error_code' => $error_code,
+            'error_message' => $error_message,
             'duration_ms' => (int) round((microtime(true) - $started) * 1000),
             'timeout_ms' => absint($settings['ai_timeout_ms']),
         ));

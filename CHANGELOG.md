@@ -2,6 +2,13 @@
 
 All notable changes to Relevanssi Extended are recorded here.
 
+## 0.1.12 - 2026-07-12
+
+- Added native WordPress 7 AI Connector calls for Site Topic Map generation and live semantic keyword expansion.
+- Added skipped-search AI log rows when semantic expansion is blocked by missing Relevanssi, unavailable AI, or a non-ready Topic Map.
+- Added AI Logs details output for skip reasons, errors, cache hits, and returned semantic terms.
+- Preserved adapter filters as overrides while making native WordPress AI the default path.
+
 ## 0.1.11 - 2026-07-12
 
 - Renamed the editor block to "Search" so clients can find it without knowing the plugin name.

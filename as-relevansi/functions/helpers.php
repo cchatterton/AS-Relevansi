@@ -16,6 +16,7 @@ function wp7rss_default_settings() {
     return array(
         'use_plugin_css' => 1,
         'ai_timeout_ms' => 2500,
+        'topic_map_timeout_ms' => 30000,
         'max_semantic_terms' => 8,
         'cache_duration_hours' => 24,
         'logging_mode' => 'metadata',

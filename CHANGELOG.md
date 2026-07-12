@@ -2,6 +2,11 @@
 
 All notable changes to Relevanssi Extended are recorded here.
 
+## 0.1.15 - 2026-07-12
+
+- Added a separate Topic Map AI timeout setting with a 30 second default so background map builds are not limited by the live search timeout.
+- Renamed the existing AI timeout setting to clarify that it applies to live search expansion.
+
 ## 0.1.14 - 2026-07-12
 
 - Removed the AI temperature request option so native connectors using models that do not support temperature can build Topic Maps.

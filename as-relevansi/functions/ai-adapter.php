@@ -40,7 +40,8 @@ function wp7rss_ai_generate_json($prompt, $schema, $call_type) {
     }
 
     $settings = wp7rss_get_settings();
-    $timeout = max(1, absint($settings['ai_timeout_ms']) / 1000);
+    $timeout_ms = 'topic_map_build' === $call_type ? absint($settings['topic_map_timeout_ms']) : absint($settings['ai_timeout_ms']);
+    $timeout = max(1, $timeout_ms / 1000);
     $timeout_filter = static function () use ($timeout) {
         return $timeout;
     };

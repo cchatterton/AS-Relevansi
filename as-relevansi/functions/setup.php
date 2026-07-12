@@ -148,6 +148,7 @@ function wp7rss_build_topic_map($source = 'scheduled') {
             'raw_response' => $response,
             'error_code' => $error_code,
             'error_message' => $error_message,
+            'timeout_ms' => absint(wp7rss_get_settings()['topic_map_timeout_ms']),
             'duration_ms' => (int) round((microtime(true) - $started) * 1000),
         ));
         return;
@@ -189,6 +190,7 @@ function wp7rss_build_topic_map($source = 'scheduled') {
         'request_packet' => $packet,
         'raw_response' => $response,
         'parsed_response' => $response,
+        'timeout_ms' => absint(wp7rss_get_settings()['topic_map_timeout_ms']),
         'duration_ms' => (int) round((microtime(true) - $started) * 1000),
         'response_used' => 1,
     ));

@@ -34,6 +34,7 @@ function wp7rss_handle_admin_actions() {
             update_option('wp7rss_settings', $settings);
         } elseif ('ai-connector' === $settings_tab) {
             $settings['ai_timeout_ms'] = max(500, absint($_POST['ai_timeout_ms'] ?? 2500));
+            $settings['topic_map_timeout_ms'] = max(5000, absint($_POST['topic_map_timeout_ms'] ?? 30000));
             $settings['max_semantic_terms'] = max(1, min(20, absint($_POST['max_semantic_terms'] ?? 8)));
             $settings['cache_duration_hours'] = max(1, absint($_POST['cache_duration_hours'] ?? 24));
             update_option('wp7rss_settings', $settings);
@@ -163,7 +164,8 @@ function wp7rss_render_admin_tab($tab) {
                     <tr><th><?php esc_html_e('Provider / model', WP7RSS_TEXT_DOMAIN); ?></th><td><?php echo esc_html(trim($ai['provider'] . ' ' . $ai['model'])); ?></td></tr>
                 </tbody>
             </table>
-            <?php wp7rss_number_input('ai_timeout_ms', __('Timeout milliseconds', WP7RSS_TEXT_DOMAIN), $settings['ai_timeout_ms']); ?>
+            <?php wp7rss_number_input('ai_timeout_ms', __('Live search timeout milliseconds', WP7RSS_TEXT_DOMAIN), $settings['ai_timeout_ms']); ?>
+            <?php wp7rss_number_input('topic_map_timeout_ms', __('Topic Map timeout milliseconds', WP7RSS_TEXT_DOMAIN), $settings['topic_map_timeout_ms']); ?>
             <?php wp7rss_number_input('max_semantic_terms', __('Max semantic terms', WP7RSS_TEXT_DOMAIN), $settings['max_semantic_terms']); ?>
             <?php wp7rss_number_input('cache_duration_hours', __('Expansion cache hours', WP7RSS_TEXT_DOMAIN), $settings['cache_duration_hours']); ?>
         <?php elseif ('topic-map' === $tab) : ?>

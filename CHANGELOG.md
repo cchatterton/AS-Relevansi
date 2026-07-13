@@ -2,6 +2,11 @@
 
 All notable changes to Relevanssi Extended are recorded here.
 
+## 0.1.19 - 2026-07-13
+
+- Fired semantic-term ready hooks for cached live-search expansion results so Relevanssi integrations are fed on repeated searches.
+- Added cached fallback terms for suggested search links when the search template renders after context setup.
+
 ## 0.1.18 - 2026-07-13
 
 - Added public helper functions for rendering current AI semantic terms as suggested site-search links.

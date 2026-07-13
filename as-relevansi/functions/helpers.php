@@ -238,11 +238,42 @@ function wp7rss_get_results_action_url($override = '') {
     return home_url('/');
 }
 
+function wp7rss_get_search_expansion_cache_key($query, $topic_version) {
+    return 'wp7rss_expansion_' . md5(strtolower(trim((string) $query)) . '|' . get_locale() . '|' . (string) $topic_version);
+}
+
+function wp7rss_get_cached_search_expansion_terms($query, $limit = 8) {
+    $ready_topic_map = wp7rss_get_latest_ready_topic_map_record();
+    if (!$ready_topic_map || '' === trim((string) $query)) {
+        return array();
+    }
+
+    $cache_key = wp7rss_get_search_expansion_cache_key($query, (string) $ready_topic_map['record']->version_hash);
+    $cached = get_transient($cache_key);
+
+    return is_array($cached) ? wp7rss_validate_semantic_terms($cached, $limit) : array();
+}
+
 function wp7rss_get_suggested_search_terms($limit = 8) {
     $context = isset($GLOBALS['wp7rss_search_context']) && is_array($GLOBALS['wp7rss_search_context']) ? $GLOBALS['wp7rss_search_context'] : array();
     $terms = isset($context['semantic_terms']) && is_array($context['semantic_terms']) ? $context['semantic_terms'] : array();
     $terms = wp7rss_validate_semantic_terms($terms, max(1, absint($limit)));
-    $original_query = isset($context['original_query']) ? strtolower(trim((string) $context['original_query'])) : '';
+    $original_query = isset($context['original_query']) ? trim((string) $context['original_query']) : '';
+
+    if (empty($terms) && is_search()) {
+        $original_query = '' !== $original_query ? $original_query : get_search_query(false);
+        $terms = wp7rss_get_cached_search_expansion_terms($original_query, max(1, absint($limit)));
+        if (!empty($terms)) {
+            $GLOBALS['wp7rss_search_context'] = array(
+                'original_query' => $original_query,
+                'semantic_terms' => $terms,
+                'cache_hit' => true,
+                'display_fallback' => true,
+            );
+        }
+    }
+
+    $original_query = strtolower($original_query);
 
     if ('' !== $original_query) {
         $terms = array_values(array_filter($terms, static function ($term) use ($original_query) {
@@ -423,7 +454,7 @@ function wp7rss_prepare_search_expansion_context($query) {
 
     $topic_record = $ready_topic_map['record'];
     $topic_version = (string) $topic_record->version_hash;
-    $cache_key = 'wp7rss_expansion_' . md5(strtolower($original_query) . '|' . get_locale() . '|' . $topic_version);
+    $cache_key = wp7rss_get_search_expansion_cache_key($original_query, $topic_version);
     $cached = get_transient($cache_key);
     if (is_array($cached)) {
         $terms = wp7rss_validate_semantic_terms($cached, $settings['max_semantic_terms']);
@@ -442,6 +473,7 @@ function wp7rss_prepare_search_expansion_context($query) {
             'response_used' => 1,
             'topic_map_version' => $topic_version,
         ));
+        do_action('wp7rss_semantic_terms_ready', $terms, $original_query, $query);
         return;
     }
 

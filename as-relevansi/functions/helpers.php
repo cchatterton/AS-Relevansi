@@ -46,6 +46,7 @@ function wp7rss_default_bot_settings() {
         'image_id' => 0,
         'image_alt' => __('Search assistant', WP7RSS_TEXT_DOMAIN),
         'bubble_text' => __('Can I help you find something?', WP7RSS_TEXT_DOMAIN),
+        'search_suggestions_headline' => __('Maybe one of these suggested terms works:', WP7RSS_TEXT_DOMAIN),
         'placeholder' => __('Search this site...', WP7RSS_TEXT_DOMAIN),
         'button_label' => __('Send', WP7RSS_TEXT_DOMAIN),
         'position' => 'bottom-right',
@@ -75,7 +76,7 @@ function wp7rss_get_block_defaults() {
 function wp7rss_get_bot_settings() {
     $defaults = wp7rss_default_bot_settings();
     $settings = wp_parse_args((array) get_option('wp7rss_search_bot_settings', array()), $defaults);
-    foreach (array('image_alt', 'bubble_text', 'placeholder', 'button_label') as $key) {
+    foreach (array('image_alt', 'bubble_text', 'search_suggestions_headline', 'placeholder', 'button_label') as $key) {
         if ('' === trim((string) $settings[$key])) {
             $settings[$key] = $defaults[$key];
         }

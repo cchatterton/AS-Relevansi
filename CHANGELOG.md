@@ -2,6 +2,11 @@
 
 All notable changes to Relevanssi Extended are recorded here.
 
+## 0.1.21 - 2026-07-13
+
+- Added a Search Bot setting for the search results suggested terms headline.
+- Smoothed Search Bot entrance timing so the launcher appears before the panel opens.
+
 ## 0.1.20 - 2026-07-13
 
 - Changed the Search Bot to appear on search results pages when suggested terms are available.

@@ -1,7 +1,7 @@
 # Relevanssi Extended
 
 Author: AlphaSys  
-Version: 0.1.20  
+Version: 0.1.21  
 Status: Alpha / MVP  
 
 ## Purpose

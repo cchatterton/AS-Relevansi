@@ -77,7 +77,7 @@ function wp7rss_render_search_bot() {
         <div class="wp7rss-search-bot__panel" data-wp7rss-bot-panel>
             <button type="button" class="wp7rss-search-bot__dismiss" data-wp7rss-bot-dismiss aria-label="<?php esc_attr_e('Dismiss search assistant', WP7RSS_TEXT_DOMAIN); ?>">×</button>
             <?php if ($is_search_page) : ?>
-                <div class="wp7rss-search-bot__message"><?php esc_html_e('Maybe one of these suggested terms works:', WP7RSS_TEXT_DOMAIN); ?></div>
+                <div class="wp7rss-search-bot__message"><?php echo esc_html($bot['search_suggestions_headline']); ?></div>
                 <ul class="wp7rss-search-bot__suggestions" aria-label="<?php esc_attr_e('Suggested search terms', WP7RSS_TEXT_DOMAIN); ?>">
                     <?php foreach ($suggested_searches as $suggested_search) : ?>
                         <li>

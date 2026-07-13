@@ -26,7 +26,12 @@
 
         function show() {
             bot.hidden = false;
-            bot.classList.add('is-open');
+            window.requestAnimationFrame(function () {
+                bot.classList.add('is-visible');
+            });
+            window.setTimeout(function () {
+                bot.classList.add('is-open');
+            }, 180);
             if (toggle) {
                 toggle.setAttribute('aria-expanded', 'true');
             }
@@ -42,6 +47,7 @@
         if (toggle) {
             toggle.addEventListener('click', function () {
                 bot.hidden = false;
+                bot.classList.add('is-visible');
                 bot.classList.toggle('is-open');
                 toggle.setAttribute('aria-expanded', bot.classList.contains('is-open') ? 'true' : 'false');
             });

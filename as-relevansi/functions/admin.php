@@ -52,6 +52,7 @@ function wp7rss_handle_admin_actions() {
             $bot_defaults = wp7rss_default_bot_settings();
             $bot['image_alt'] = sanitize_text_field(wp_unslash($_POST['bot_image_alt'] ?? '')) ?: $bot_defaults['image_alt'];
             $bot['bubble_text'] = sanitize_text_field(wp_unslash($_POST['bot_bubble_text'] ?? '')) ?: $bot_defaults['bubble_text'];
+            $bot['search_suggestions_headline'] = sanitize_text_field(wp_unslash($_POST['bot_search_suggestions_headline'] ?? '')) ?: $bot_defaults['search_suggestions_headline'];
             $bot['placeholder'] = sanitize_text_field(wp_unslash($_POST['bot_placeholder'] ?? '')) ?: $bot_defaults['placeholder'];
             $bot['button_label'] = sanitize_text_field(wp_unslash($_POST['bot_button_label'] ?? '')) ?: $bot_defaults['button_label'];
             $bot['position'] = in_array($_POST['bot_position'] ?? 'bottom-right', array('bottom-left', 'bottom-right'), true) ? sanitize_key($_POST['bot_position']) : 'bottom-right';
@@ -212,6 +213,7 @@ function wp7rss_render_admin_tab($tab) {
             </div>
             <?php wp7rss_text_input('bot_image_alt', __('Bot image alt text', WP7RSS_TEXT_DOMAIN), $bot['image_alt']); ?>
             <?php wp7rss_text_input('bot_bubble_text', __('Bubble text', WP7RSS_TEXT_DOMAIN), $bot['bubble_text']); ?>
+            <?php wp7rss_text_input('bot_search_suggestions_headline', __('Search results suggestions headline', WP7RSS_TEXT_DOMAIN), $bot['search_suggestions_headline']); ?>
             <?php wp7rss_text_input('bot_placeholder', __('Placeholder', WP7RSS_TEXT_DOMAIN), $bot['placeholder']); ?>
             <?php wp7rss_text_input('bot_button_label', __('Send button label', WP7RSS_TEXT_DOMAIN), $bot['button_label']); ?>
             <p>

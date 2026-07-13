@@ -75,6 +75,15 @@
     overflow: hidden;
     font-weight: 800;
     letter-spacing: 0;
+    opacity: 0;
+    transform: translateY(0.75rem) scale(0.94);
+    transition: opacity 220ms ease, transform 220ms ease, box-shadow 220ms ease;
+}
+
+.wp7rss-search-bot.is-visible .wp7rss-search-bot__launcher,
+.wp7rss-search-bot-preview .wp7rss-search-bot__launcher {
+    opacity: 1;
+    transform: translateY(0) scale(1);
 }
 
 .wp7rss-search-bot--bottom-left .wp7rss-search-bot__launcher {
@@ -88,7 +97,6 @@
 }
 
 .wp7rss-search-bot__panel {
-    display: none;
     position: relative;
     padding: 1rem;
     border: 1px solid rgba(119, 138, 165, 0.25);
@@ -96,11 +104,22 @@
     background: rgba(255, 255, 255, 0.98);
     box-shadow: 0 1.4rem 3.5rem rgba(13, 28, 56, 0.22);
     backdrop-filter: blur(10px);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(0.75rem) scale(0.98);
+    transform-origin: bottom right;
+    transition: opacity 260ms ease, transform 260ms ease;
+}
+
+.wp7rss-search-bot--bottom-left .wp7rss-search-bot__panel {
+    transform-origin: bottom left;
 }
 
 .wp7rss-search-bot.is-open .wp7rss-search-bot__panel,
 .wp7rss-search-bot-preview .wp7rss-search-bot__panel {
-    display: block;
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0) scale(1);
 }
 
 .wp7rss-search-bot__message {
@@ -346,5 +365,10 @@
     .wp7rss-search-bot * {
         transition: none;
         animation: none;
+    }
+
+    .wp7rss-search-bot__launcher,
+    .wp7rss-search-bot__panel {
+        transform: none;
     }
 }

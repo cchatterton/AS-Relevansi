@@ -8,7 +8,6 @@ function wp7rss_bootstrap() {
     add_action('init', 'wp7rss_register_cron_hooks');
     add_action('wp7rss_build_topic_map', 'wp7rss_build_topic_map');
     add_action('wp7rss_cleanup_ai_logs', 'wp7rss_cleanup_ai_logs');
-    add_action('save_post', 'wp7rss_mark_topic_map_stale_on_content_change', 10, 3);
     add_action('pre_get_posts', 'wp7rss_prepare_search_expansion_context', 20);
 }
 
@@ -25,7 +24,6 @@ function wp7rss_default_settings() {
         'delete_data_on_uninstall' => 0,
         'scheduled_topic_refresh' => 0,
         'topic_refresh_frequency' => 'manual',
-        'topic_content_change_behaviour' => 'mark_stale',
     );
 }
 
@@ -240,6 +238,26 @@ function wp7rss_get_results_action_url($override = '') {
     return home_url('/');
 }
 
+function wp7rss_get_latest_ready_topic_map_record() {
+    global $wpdb;
+    $table = $wpdb->prefix . 'wp7rss_topic_map';
+    $record = $wpdb->get_row("SELECT * FROM $table WHERE status = 'ready' ORDER BY updated_at DESC, id DESC LIMIT 1");
+
+    if (!$record || empty($record->topic_map)) {
+        return null;
+    }
+
+    $topic_map = json_decode((string) $record->topic_map, true);
+    if (!is_array($topic_map)) {
+        return null;
+    }
+
+    return array(
+        'record' => $record,
+        'topic_map' => $topic_map,
+    );
+}
+
 function wp7rss_log_ai_call($data) {
     $settings = wp7rss_get_settings();
     if ('off' === $settings['logging_mode']) {
@@ -349,14 +367,19 @@ function wp7rss_prepare_search_expansion_context($query) {
     }
 
     $settings = wp7rss_get_settings();
-    $topic = wp7rss_get_topic_status();
     $skip_reason = '';
     if (!wp7rss_is_relevanssi_active()) {
         $skip_reason = 'relevanssi_missing';
     } elseif (!wp7rss_ai_connector_available()) {
         $skip_reason = 'ai_connector_unavailable';
-    } elseif ('ready' !== $topic['status']) {
-        $skip_reason = 'topic_map_not_ready';
+    }
+
+    $ready_topic_map = null;
+    if ('' === $skip_reason) {
+        $ready_topic_map = wp7rss_get_latest_ready_topic_map_record();
+        if (!$ready_topic_map) {
+            $skip_reason = 'topic_map_not_ready';
+        }
     }
 
     if ('' !== $skip_reason) {
@@ -371,7 +394,9 @@ function wp7rss_prepare_search_expansion_context($query) {
         return;
     }
 
-    $cache_key = 'wp7rss_expansion_' . md5(strtolower($original_query) . '|' . get_locale() . '|' . $topic['version_hash']);
+    $topic_record = $ready_topic_map['record'];
+    $topic_version = (string) $topic_record->version_hash;
+    $cache_key = 'wp7rss_expansion_' . md5(strtolower($original_query) . '|' . get_locale() . '|' . $topic_version);
     $cached = get_transient($cache_key);
     if (is_array($cached)) {
         $terms = wp7rss_validate_semantic_terms($cached, $settings['max_semantic_terms']);
@@ -388,6 +413,7 @@ function wp7rss_prepare_search_expansion_context($query) {
             'semantic_terms' => $terms,
             'cache_status' => 'hit',
             'response_used' => 1,
+            'topic_map_version' => $topic_version,
         ));
         return;
     }
@@ -401,7 +427,7 @@ function wp7rss_prepare_search_expansion_context($query) {
         'site_url' => home_url('/'),
         'locale' => get_locale(),
         'max_semantic_terms' => absint($settings['max_semantic_terms']),
-        'topic_map_version' => $topic['version_hash'],
+        'topic_map_version' => $topic_version,
     );
 
     $response = wp7rss_ai_expand_search_query_response($packet);
@@ -422,6 +448,7 @@ function wp7rss_prepare_search_expansion_context($query) {
             'error_message' => $error_message,
             'duration_ms' => (int) round((microtime(true) - $started) * 1000),
             'timeout_ms' => absint($settings['ai_timeout_ms']),
+            'topic_map_version' => $topic_version,
         ));
         return;
     }
@@ -456,6 +483,7 @@ function wp7rss_prepare_search_expansion_context($query) {
         'timeout_ms' => absint($settings['ai_timeout_ms']),
         'cache_status' => 'miss',
         'response_used' => 1,
+        'topic_map_version' => $topic_version,
     ));
 
     /**

@@ -2,6 +2,12 @@
 
 All notable changes to Relevanssi Extended are recorded here.
 
+## 0.1.17 - 2026-07-13
+
+- Removed content-save stale marking for Topic Maps.
+- Changed live semantic expansion to reuse the latest stored ready Topic Map until a newer successful rebuild is available.
+- Prevented failed Topic Map rebuilds from making an existing ready map unusable.
+
 ## 0.1.16 - 2026-07-13
 
 - Fixed the Prepared Topics Response renderer to display native AI topic names, summaries, and terms.

@@ -96,6 +96,13 @@ function wp7rss_reconcile_admin_status() {
         $topic['last_error'] = '';
         update_option('wp7rss_topic_map_status', $topic);
     }
+
+    if ('stale' === $topic['status'] && wp7rss_get_latest_ready_topic_map_record()) {
+        $topic['status'] = 'ready';
+        $topic['last_error'] = '';
+        $topic['plugin_version'] = WP7RSS_VERSION;
+        update_option('wp7rss_topic_map_status', $topic);
+    }
 }
 
 function wp7rss_render_admin_page() {
@@ -308,24 +315,7 @@ function wp7rss_get_ai_log_details($log) {
 }
 
 function wp7rss_get_latest_topic_map_record() {
-    global $wpdb;
-
-    $table = $wpdb->prefix . 'wp7rss_topic_map';
-    $record = $wpdb->get_row("SELECT * FROM $table WHERE status = 'ready' ORDER BY updated_at DESC, id DESC LIMIT 1");
-
-    if (!$record || empty($record->topic_map)) {
-        return null;
-    }
-
-    $topic_map = json_decode($record->topic_map, true);
-    if (!is_array($topic_map)) {
-        return null;
-    }
-
-    return array(
-        'record' => $record,
-        'topic_map' => $topic_map,
-    );
+    return wp7rss_get_latest_ready_topic_map_record();
 }
 
 function wp7rss_render_topic_map_response() {

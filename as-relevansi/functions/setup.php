@@ -129,8 +129,9 @@ function wp7rss_build_topic_map($source = 'scheduled') {
     if (!is_array($response) || empty($response['topics']) || !is_array($response['topics'])) {
         $error_code = is_wp_error($response) ? $response->get_error_code() : 'invalid_response';
         $error_message = is_wp_error($response) ? $response->get_error_message() : __('AI Connector returned an invalid topic map response.', WP7RSS_TEXT_DOMAIN);
+        $latest_ready = wp7rss_get_latest_ready_topic_map_record();
         update_option('wp7rss_topic_map_status', array_merge(wp7rss_get_topic_status(), array(
-            'status' => 'failed',
+            'status' => $latest_ready ? 'ready' : 'failed',
             'last_attempt' => current_time('mysql'),
             'source_items' => count($packet['items']),
             'source_terms' => count($packet['terms']),
@@ -259,22 +260,5 @@ function wp7rss_cleanup_ai_logs() {
     if (!empty($ids)) {
         $ids = array_map('absint', $ids);
         $wpdb->query("DELETE FROM $table WHERE id IN (" . implode(',', $ids) . ")");
-    }
-}
-
-function wp7rss_mark_topic_map_stale_on_content_change($post_id, $post, $update) {
-    if (wp_is_post_revision($post_id) || 'publish' !== $post->post_status) {
-        return;
-    }
-
-    $settings = wp7rss_get_settings();
-    if ('mark_stale' !== $settings['topic_content_change_behaviour']) {
-        return;
-    }
-
-    $status = wp7rss_get_topic_status();
-    if ('ready' === $status['status']) {
-        $status['status'] = 'stale';
-        update_option('wp7rss_topic_map_status', $status);
     }
 }

@@ -2,6 +2,11 @@
 
 All notable changes to Relevanssi Extended are recorded here.
 
+## 0.1.20 - 2026-07-13
+
+- Changed the Search Bot to appear on search results pages when suggested terms are available.
+- Replaced the Search Bot composer on search pages with suggested search term links.
+
 ## 0.1.19 - 2026-07-13
 
 - Fired semantic-term ready hooks for cached live-search expansion results so Relevanssi integrations are fed on repeated searches.

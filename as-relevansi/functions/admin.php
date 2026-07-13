@@ -191,7 +191,7 @@ function wp7rss_render_admin_tab($tab) {
         <?php elseif ('search-bot' === $tab) : ?>
             <h2><?php esc_html_e('Search Bot', WP7RSS_TEXT_DOMAIN); ?></h2>
             <div class="notice notice-info inline">
-                <p><?php esc_html_e('The Search Bot appears on all frontend pages when enabled, except WordPress search results pages and admin screens.', WP7RSS_TEXT_DOMAIN); ?></p>
+                <p><?php esc_html_e('The Search Bot appears on frontend pages when enabled. On search results pages, it offers suggested search terms instead of a search box when suggestions are available.', WP7RSS_TEXT_DOMAIN); ?></p>
             </div>
             <p><label><input type="checkbox" name="bot_enabled" value="1" <?php checked($bot['enabled']); ?>> <?php esc_html_e('Enable Search Bot', WP7RSS_TEXT_DOMAIN); ?></label></p>
             <?php wp7rss_number_input('bot_delay_seconds', __('Delay seconds', WP7RSS_TEXT_DOMAIN), $bot['delay_seconds']); ?>

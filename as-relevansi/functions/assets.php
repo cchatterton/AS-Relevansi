@@ -23,7 +23,7 @@ function wp7rss_enqueue_frontend_assets() {
     $bot = wp7rss_get_bot_settings();
     wp_localize_script('wp7rss-frontend', 'WP7RSS', array(
         'bot' => array(
-            'enabled' => !empty($bot['enabled']) && !is_search(),
+            'enabled' => !empty($bot['enabled']),
             'delay' => absint($bot['delay_seconds']) * 1000,
             'mobileDelay' => absint($bot['mobile_delay_seconds']) * 1000,
             'hideMobile' => !empty($bot['hide_mobile']),
@@ -52,12 +52,14 @@ function wp7rss_use_plugin_css() {
 }
 
 function wp7rss_render_search_bot() {
-    if (is_search()) {
+    $bot = wp7rss_get_bot_settings();
+    if (empty($bot['enabled'])) {
         return;
     }
 
-    $bot = wp7rss_get_bot_settings();
-    if (empty($bot['enabled'])) {
+    $is_search_page = is_search();
+    $suggested_searches = $is_search_page && function_exists('wp7rss_get_suggested_search_links') ? wp7rss_get_suggested_search_links() : array();
+    if ($is_search_page && empty($suggested_searches)) {
         return;
     }
 
@@ -74,12 +76,23 @@ function wp7rss_render_search_bot() {
     <div class="wp7rss-search-bot wp7rss-search-bot--<?php echo esc_attr($bot['position']); ?>" data-wp7rss-search-bot hidden>
         <div class="wp7rss-search-bot__panel" data-wp7rss-bot-panel>
             <button type="button" class="wp7rss-search-bot__dismiss" data-wp7rss-bot-dismiss aria-label="<?php esc_attr_e('Dismiss search assistant', WP7RSS_TEXT_DOMAIN); ?>">×</button>
-            <div class="wp7rss-search-bot__message"><?php echo esc_html($bot['bubble_text']); ?></div>
-            <form class="wp7rss-search-bot__composer" action="<?php echo esc_url(wp7rss_get_results_action_url()); ?>" method="get" role="search">
-                <label class="screen-reader-text" for="wp7rss-search-bot-input"><?php esc_html_e('Search query', WP7RSS_TEXT_DOMAIN); ?></label>
-                <input id="wp7rss-search-bot-input" type="search" name="s" required placeholder="<?php echo esc_attr($bot['placeholder']); ?>">
-                <button type="submit"><?php echo esc_html($bot['button_label']); ?></button>
-            </form>
+            <?php if ($is_search_page) : ?>
+                <div class="wp7rss-search-bot__message"><?php esc_html_e('Maybe one of these suggested terms works:', WP7RSS_TEXT_DOMAIN); ?></div>
+                <ul class="wp7rss-search-bot__suggestions" aria-label="<?php esc_attr_e('Suggested search terms', WP7RSS_TEXT_DOMAIN); ?>">
+                    <?php foreach ($suggested_searches as $suggested_search) : ?>
+                        <li>
+                            <a href="<?php echo esc_url($suggested_search['url']); ?>"><?php echo esc_html($suggested_search['term']); ?></a>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php else : ?>
+                <div class="wp7rss-search-bot__message"><?php echo esc_html($bot['bubble_text']); ?></div>
+                <form class="wp7rss-search-bot__composer" action="<?php echo esc_url(wp7rss_get_results_action_url()); ?>" method="get" role="search">
+                    <label class="screen-reader-text" for="wp7rss-search-bot-input"><?php esc_html_e('Search query', WP7RSS_TEXT_DOMAIN); ?></label>
+                    <input id="wp7rss-search-bot-input" type="search" name="s" required placeholder="<?php echo esc_attr($bot['placeholder']); ?>">
+                    <button type="submit"><?php echo esc_html($bot['button_label']); ?></button>
+                </form>
+            <?php endif; ?>
         </div>
         <button type="button" class="wp7rss-search-bot__launcher" data-wp7rss-bot-toggle aria-expanded="false" aria-label="<?php echo esc_attr($bot['image_alt']); ?>">
             <?php if ($image_url) : ?>

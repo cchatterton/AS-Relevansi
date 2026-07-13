@@ -147,6 +147,27 @@
     cursor: pointer;
 }
 
+.wp7rss-search-bot__suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.wp7rss-search-bot__suggestions a {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid #d7e0ec;
+    border-radius: 999px;
+    padding: 0.45rem 0.7rem;
+    background: #f8fafc;
+    color: #193a7a;
+    text-decoration: none;
+    line-height: 1.15;
+}
+
 .wp7rss-search-bot__dismiss {
     position: absolute;
     top: 0.6rem;

@@ -238,6 +238,33 @@ function wp7rss_get_results_action_url($override = '') {
     return home_url('/');
 }
 
+function wp7rss_get_suggested_search_terms($limit = 8) {
+    $context = isset($GLOBALS['wp7rss_search_context']) && is_array($GLOBALS['wp7rss_search_context']) ? $GLOBALS['wp7rss_search_context'] : array();
+    $terms = isset($context['semantic_terms']) && is_array($context['semantic_terms']) ? $context['semantic_terms'] : array();
+    $terms = wp7rss_validate_semantic_terms($terms, max(1, absint($limit)));
+    $original_query = isset($context['original_query']) ? strtolower(trim((string) $context['original_query'])) : '';
+
+    if ('' !== $original_query) {
+        $terms = array_values(array_filter($terms, static function ($term) use ($original_query) {
+            return strtolower(trim((string) $term)) !== $original_query;
+        }));
+    }
+
+    return $terms;
+}
+
+function wp7rss_get_suggested_search_links($limit = 8) {
+    $links = array();
+    foreach (wp7rss_get_suggested_search_terms($limit) as $term) {
+        $links[] = array(
+            'term' => $term,
+            'url' => add_query_arg('s', $term, home_url('/')),
+        );
+    }
+
+    return $links;
+}
+
 function wp7rss_get_latest_ready_topic_map_record() {
     global $wpdb;
     $table = $wpdb->prefix . 'wp7rss_topic_map';

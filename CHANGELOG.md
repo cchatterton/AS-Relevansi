@@ -2,6 +2,10 @@
 
 All notable changes to Relevanssi Extended are recorded here.
 
+## 0.1.18 - 2026-07-13
+
+- Added public helper functions for rendering current AI semantic terms as suggested site-search links.
+
 ## 0.1.17 - 2026-07-13
 
 - Removed content-save stale marking for Topic Maps.

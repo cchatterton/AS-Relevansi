@@ -1,7 +1,7 @@
 # Relevanssi Extended
 
 Author: AlphaSys  
-Version: 0.1.21  
+Version: 0.1.22<br>
 Status: Alpha / MVP  
 
 ## Purpose
@@ -41,3 +41,7 @@ Relevanssi Extended adds a reusable WordPress search block, optional AI-assisted
 - Add a site-tested Relevanssi result merge/weighting adapter.
 - Expand AI Logs with detail views, filters, and export.
 - Add richer media-library controls for Search Bot image selection.
+
+## Controller integration — 0.1.22
+
+Remove independent GitHub update checks and delegate updates to AlphaSys Update Controller. Keep Beta readiness and existing feature settings, package identity and domain restrictions. Previous standalone GitHub update instructions are superseded.
